@@ -136,7 +136,7 @@ public class GameEngine implements GameLogic
 
         try
         {
-            log = new FileOutputStream("Game.log");
+            log = new FileOutputStream("Game.txt");
             log.write("[".getBytes());
             log.write(Json.GSON.toJson(messages[0]).getBytes());
         } catch (IOException e)
