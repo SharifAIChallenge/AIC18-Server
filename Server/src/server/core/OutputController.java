@@ -16,7 +16,7 @@ import java.util.LinkedList;
  * Class created as a part of {@link GameServer GameServer} class for controlling the output.
  * <p>
  * This class gathers all output taken from "GameLogic" into a queue, and the process them as the user
- * wishes. <i>Currently passing to {@link server.network.UINetwork UINetwork} and saving in a
+ * wishes. <i>Currently passing to {@link UINetwork UINetwork} and saving in a
  * local file is supported.</i>
  * </p>
  */
@@ -43,7 +43,7 @@ public class OutputController {
      * Output handling will be assumed as a "Pre Runner" in order to a fast forward run based
      * on the game logic, and storing data on a file for later use.
      * Data would be held on memory until reaches the specified buffer size, and then will be
-     * written to the specified file (Using {@link server.core.OutputController.FileWriter FileWriter}
+     * written to the specified file (Using {@link FileWriter FileWriter}
      * runnable class).
      * </p>
      * In the case that sendToFile flag is set:
@@ -56,7 +56,7 @@ public class OutputController {
      * Note that this will raise a runtime exception, in the case of invalid arguments.
      * </p>
      *
-     * @param uiNetwork The given instance of {@link server.network.UINetwork UINetwork} class to send data to
+     * @param uiNetwork The given instance of {@link UINetwork UINetwork} class to send data to
      */
     public OutputController(UINetwork uiNetwork) {
         this.sendToUI = Configs.PARAM_OC_SEND_TO_UI.getValue();
@@ -86,7 +86,7 @@ public class OutputController {
     }
 
     /**
-     * Accepts an instance of {@link network.data.Message Message} class as an argument, and places it
+     * Accepts an instance of {@link Message Message} class as an argument, and places it
      * on the queue.
      * <p>
      * In this method, the given message will be putted in the message queue, only if there's a place on the
@@ -122,11 +122,11 @@ public class OutputController {
     /**
      * Tries to shutdown all the threads ran in this class so far.
      * <p>
-     * This method calls the close on the {@link server.core.OutputController.FileWriter FileWriter} instance of
+     * This method calls the close on the {@link FileWriter FileWriter} instance of
      * the object, causing it to interrupt as soon as all files wrote down on the file.
      * Also cancels the timer to stop automatically invocation of
-     * {@link server.core.OutputController.UINetworkSender UINetworkSender}.
-     * Other threads would be closed automatically ({@link server.core.OutputController.UINetworkSender
+     * {@link UINetworkSender UINetworkSender}.
+     * Other threads would be closed automatically ({@link UINetworkSender
      * UINetworkSenders} after the timeout).
      * </p>
      */
@@ -196,9 +196,9 @@ public class OutputController {
          * <p>
          * This method uses a while loop to save the whole contents of
          * {@link java.util.concurrent.BlockingQueue BlockingQueue} of
-         * {@link network.data.Message Messages} to the given file.
+         * {@link Message Messages} to the given file.
          * This will stop working only if the close order were sent and there's no more
-         * {@link network.data.Message Messages} on the queue.
+         * {@link Message Messages} on the queue.
          * </p>
          */
         @Override
@@ -259,13 +259,13 @@ public class OutputController {
     }
 
     /**
-     * Is responsible for sending the first {@link network.data.Message Message} in the queue to the
-     * {@link server.network.UINetwork UINetwork}.
+     * Is responsible for sending the first {@link Message Message} in the queue to the
+     * {@link UINetwork UINetwork}.
      * <p>
      * As the failure in connection and some other issues leaves the
-     * {@link server.network.UINetwork#sendBlocking(network.data.Message) UINetwork.send(Message)} method
+     * {@link UINetwork#sendBlocking(Message) UINetwork.send(Message)} method
      * blocked, and so causes a thread block, this class runs as an alternative thread to send the messages
-     * in the queue, to the {@link server.network.UINetwork UINetwrok} instance without causing the main
+     * in the queue, to the {@link UINetwork UINetwrok} instance without causing the main
      * thread of OutputController to sleep.
      * </p>
      */
@@ -295,10 +295,10 @@ public class OutputController {
         }
 
         /**
-         * Implemented run method from {@link java.lang.Runnable Runnable} class which sends the first message in the
-         * queue to the {@link server.network.UINetwork UINetwork}.
+         * Implemented run method from {@link Runnable Runnable} class which sends the first message in the
+         * queue to the {@link UINetwork UINetwork}.
          * <p>
-         * This method will call the {@link #sendToUINetwork(network.data.Message) sendToUINetwork(Message)}
+         * This method will call the {@link #sendToUINetwork(Message) sendToUINetwork(Message)}
          * method with the appropriate message instance.
          * Every connection made in a separate thread and with a specified timeout.
          * If the last connection could send the message within the timeout, then this method will take another
@@ -326,14 +326,14 @@ public class OutputController {
         }
 
         /**
-         * This method serves the instance of {@link server.network.UINetwork UINetwork} class with messages.
+         * This method serves the instance of {@link UINetwork UINetwork} class with messages.
          * <p>
-         * This method calls {@link server.network.UINetwork#sendBlocking(network.data.Message) send(message)}
-         * method on {@link server.network.UINetwork UINetwork} instance in order to show up on UI.
+         * This method calls {@link UINetwork#sendBlocking(Message) send(message)}
+         * method on {@link UINetwork UINetwork} instance in order to show up on UI.
          * Calling this while the message queue is empty, will put it in the wait mode.
          * Basically this method will be called by the timer scheduled according to user preferred
          * time interval.
-         * As the time of sending message to the {@link server.network.UINetwork UINetworks} exceeds the
+         * As the time of sending message to the {@link UINetwork UINetworks} exceeds the
          * timeout limit, then the execution will be cancelled.
          * </p>
          */

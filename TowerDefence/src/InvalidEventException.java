@@ -4,7 +4,7 @@
 public class InvalidEventException extends Exception {
     public InvalidEventException(String message) {
         super(message);
-        this.print(message);
+//        this.print(message);
     }
 
     public InvalidEventException() {

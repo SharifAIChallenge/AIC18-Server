@@ -33,10 +33,10 @@ public class Player
 
     private Player opponent;
     private int health = Constants.INIT_HEALTH;
-    private int income; // TODO
+    private int income;
     private int money = Constants.INIT_MONEY;
     private int turnover;
-    private int id; // TODO
+    private int id;
     private int nukeNum = Constants.NUMBER_OF_NUKES;
     private int beanNum = Constants.NUMBER_OF_BEANS;
 
@@ -54,7 +54,7 @@ public class Player
         this.income = 20;
     }
 
-    public void sendUnit(ArrayList<Pair<Character, Integer>> allUnitData, Map map) // TODO check correctness
+    public void sendUnit(ArrayList<Pair<Character, Integer>> allUnitData, Map map)
     {
         HashMap<Integer, Path> pathMap = map.getPathsMap();
 
@@ -85,19 +85,19 @@ public class Player
     {
         for (Pair<Character, int[]> towerData : allTowerData)
         {
-            System.out.println("in createTower()");
+//            System.out.println("in createTower()");
             int[] locationAndLv = towerData.getValue();
             Tower tower = towerFactory.createTower(towerData.getKey(), locationAndLv[0], locationAndLv[1], money);
             if (tower == null || !map.isConstructableGrass(locationAndLv[0], locationAndLv[1]))
             {
-                System.out.println("Tower invalid!");
+//                System.out.println("Tower invalid!");
                 continue;
             }
             for (int i = 0; i < locationAndLv[2] - 1; i++)
             {
                 upgradeTower(tower, true);
             }
-            System.out.println("Tower Valid!");
+//            System.out.println("Tower Valid!");
             towers.add(tower);
             towersMap.put(tower.getId(), tower);
             map.addTower(tower);
@@ -189,7 +189,7 @@ public class Player
         vision.remove(tower.getId());
     }
 
-    public void upgradeTowers(ArrayList<Integer> towerIds) // TODO send this to client? -- well it seems it only goes to UI LEL
+    public void upgradeTowers(ArrayList<Integer> towerIds)
     {
         for (Integer towerId : towerIds)
         {

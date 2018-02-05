@@ -215,7 +215,7 @@ public class ClientHandler {
     /**
      * Receives a message from client.
      *
-     * @throws java.io.IOException if an I/O error occurs.
+     * @throws IOException if an I/O error occurs.
      */
     private void receive() throws IOException, InterruptedException {
         Thread.sleep(0);

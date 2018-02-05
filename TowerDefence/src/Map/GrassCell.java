@@ -16,12 +16,12 @@ public class GrassCell extends Cell {
 
     public void createTower(Tower tower) {
         if (this.tower == null && isConstructable) {
-            this.tower = tower; // TODO
+            this.tower = tower;
             isConstructable = false;
         }
     }
 
-    public Tower plantBean() // TODO
+    public Tower plantBean()
     {
         isConstructable = false;
         Tower brokenTower = null;

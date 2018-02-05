@@ -12,7 +12,7 @@ import network.JsonSocket;
  * or offers a terminal for the client.
  * <p>
  * When the method {@link #listen} is called, a
- * {@link server.network.NetServerThread} is assigned to listen on the specified
+ * {@link NetServerThread} is assigned to listen on the specified
  * port. When a client attempts to connect to that port, the {@link #accept}
  * method of the class is called, with a reference to the
  * <code>JsonSocket</code> which is connected to the client. This is the initial
@@ -22,7 +22,7 @@ import network.JsonSocket;
  * It is better to do all operations for a client in a separated thread. So if
  * the client is fake it doesn't affect the behavior of the server.
  *
- * @see server.network.NetServerThread
+ * @see NetServerThread
  * @see ClientNetwork
  * @see UINetwork
  */
@@ -40,7 +40,7 @@ public abstract class NetServer {
      *
      * @param port server port
      * @see #terminate
-     * @see server.network.NetServerThread
+     * @see NetServerThread
      */
     public synchronized void listen(int port) {
         if (listener != null)
@@ -54,7 +54,7 @@ public abstract class NetServer {
      * called between two consecutive calls of this function.
      *
      * @see #listen
-     * @see server.network.NetServerThread
+     * @see NetServerThread
      */
     public synchronized void terminate() {
         if (listener == null)
@@ -75,7 +75,7 @@ public abstract class NetServer {
     /**
      * A method to accept new clients. When a client connects to the port of
      * this <code>NetServer</code>, this method is called, with a reference to
-     * a {@link network.JsonSocket} which is connected to the client side
+     * a {@link JsonSocket} which is connected to the client side
      * socket. A new thread may be assigned to handle requests of the client.
      * <p>
      * This method is abstract and so it is not implemented in this class.
@@ -86,7 +86,7 @@ public abstract class NetServer {
      * Note that this method must take care of everything that could be happen
      * during communications between client and server.
      *
-     * @param client a {@link network.JsonSocket} which is connected
+     * @param client a {@link JsonSocket} which is connected
      *               to the client's socket.
      */
     protected abstract void accept(JsonSocket client);

@@ -1,5 +1,5 @@
 import GameObject.ArcherTower;
-import GameObject.CanonTower;
+import GameObject.CannonTower;
 import GameObject.Tower;
 import GameObject.Unit;
 import Map.Map;
@@ -8,7 +8,6 @@ import com.google.gson.JsonElement;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -46,7 +45,7 @@ public class Scenario
             if (tower instanceof ArcherTower)
             {
                 turnEvents.addArcherAttack(tower, unit);
-            } else if (tower instanceof CanonTower)
+            } else if (tower instanceof CannonTower)
             {
                 turnEvents.addCannonAttack(tower, unit);
             }

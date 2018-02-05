@@ -1,13 +1,13 @@
 package Factory;
 
 import GameObject.ArcherTower;
-import GameObject.CanonTower;
+import GameObject.CannonTower;
 import GameObject.Tower;
 
 /**
  * Created by msi1 on 1/22/2018.
  */
-public class TowerFactory // TODO clean constants
+public class TowerFactory
 {
     private int leftoverMoney;
 
@@ -50,7 +50,7 @@ public class TowerFactory // TODO clean constants
             if (money - cost >= 0)
             {
                 leftoverMoney = money - cost;
-                return new CanonTower(nextId++, x, y, 1);
+                return new CannonTower(nextId++, x, y, 1);
             }
         }
 
@@ -83,13 +83,13 @@ public class TowerFactory // TODO clean constants
         {
             return new ArcherTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel());
         }
-        return new CanonTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel());
+        return new CannonTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel());
     }
 
     public static boolean isSameType(Tower firstTower, Tower secondTower)
     {
         return (firstTower instanceof ArcherTower && secondTower instanceof ArcherTower) ||
-                (firstTower instanceof CanonTower && secondTower instanceof CanonTower);
+                (firstTower instanceof CannonTower && secondTower instanceof CannonTower);
     }
 
     public int getLeftoverMoney()

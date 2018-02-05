@@ -24,21 +24,17 @@ import java.util.Scanner;
 public class GameEngine implements GameLogic
 {
     public static final FileParam PARAM_MAP = new FileParam("Map", null, ".*\\.map");
-//    public static IntegerParam PARAM_CLIENT_TIMEOUT = new IntegerParam("ClientTimeout", 200);
     public static int PARAM_CLIENT_TIMEOUT = 200;
-//    public static IntegerParam PARAM_TURN_TIMEOUT = new IntegerParam("TurnTimeout", 400);
     public static int PARAM_TURN_TIMEOUT = 400;
 
     public FileOutputStream log;
-//    public static IntegerParam PARAM_CLIENT_TIMEOUT = new IntegerParam("ClientTimeout", 200);
-//    public static IntegerParam PARAM_TURN_TIMEOUT = new IntegerParam("TurnTimeout", 200);
     private Scenario firstScenario;
     private Scenario secondScenario;
     private ArrayList<Scenario> scenarios = new ArrayList<>();
     private Player p1;
     private Player p2;
     private ArrayList<Player> players = new ArrayList<>();
-    private int maxTurns; // TODO get this
+    private int maxTurns;
     private int currentTurn = -1;
     private Gson gson = new Gson();
     private TurnEvents turnEvents;
@@ -126,7 +122,7 @@ public class GameEngine implements GameLogic
     }
 
     @Override
-    public Message getUIInitialMessage() // TODO send client names
+    public Message getUIInitialMessage()
     {
         return getInitMessage();
     }
@@ -173,13 +169,13 @@ public class GameEngine implements GameLogic
     @Override
     public void simulateEvents(Event[] environmentEvent, Event[][] clientsEvent)
     {
-        if (!checkEquality(clientsEvent[0], clientsEvent[1]))
-        {
-            System.out.println("ERROR IN INPUT FROM CLIENTS");
-        }
+//        if (!checkEquality(clientsEvent[0], clientsEvent[1]))
+//        {
+//            System.out.println("ERROR IN INPUT FROM CLIENTS");
+//        }
 
         moveToNextTurn();
-        System.out.println("Got message in turn " + currentTurn);
+//        System.out.println("Got message in turn " + currentTurn);
 
         // TODO clean this place :| well i guess its too late
         ArrayList<ArrayList<Pair<Character, Integer>>> allUnitCreationData = new ArrayList<>();
@@ -201,7 +197,7 @@ public class GameEngine implements GameLogic
 //                System.out.println("Message in turn " + currentTurn + " is not empty");
                 try
                 {
-                    System.out.println("event Type:" + event.getType());
+//                    System.out.println("event Type:" + event.getType());
                     switch (event.getType())
                     {
                         case "cu":
@@ -278,7 +274,6 @@ public class GameEngine implements GameLogic
 
         if (currentTurn % 10 == 0)
         {
-//            PARAM_CLIENT_TIMEOUT = new IntegerParam("ClientTimeout", 200);
             PARAM_CLIENT_TIMEOUT = 1000;
             PARAM_TURN_TIMEOUT = 2000;
             isHeavyTurn = true;
@@ -289,8 +284,6 @@ public class GameEngine implements GameLogic
             isHeavyTurn = false;
             PARAM_CLIENT_TIMEOUT = 200;
             PARAM_TURN_TIMEOUT = 400;
-//            PARAM_CLIENT_TIMEOUT = new IntegerParam("ClientTimeout", 200);
-//            PARAM_TURN_TIMEOUT = new IntegerParam("TurnTimeout", 200);
         }
     }
 
@@ -441,7 +434,7 @@ public class GameEngine implements GameLogic
     }
 
     @Override
-    public Message getStatusMessage() // TODO check if this is necessary
+    public Message getStatusMessage()
     {
         Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn, p1.getHealth(), p2.getHealth()});
         try
@@ -505,7 +498,7 @@ public class GameEngine implements GameLogic
                 p2.setHealth(0);
                 finishLog();
                 return true;
-            } else if (p1.getHealth() == p2.getHealth() && p1.getHealth() == 0) { //TODO TOTAL Transactions + current income
+            } else if (p1.getHealth() == p2.getHealth() && p1.getHealth() == 0) {
                 int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
                 int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
                 if (p1TotalTransaction > p2TotalTransaction) {

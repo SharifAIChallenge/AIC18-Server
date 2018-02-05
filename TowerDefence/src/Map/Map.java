@@ -138,7 +138,7 @@ public class Map
                 int cellX = cell.getX();
                 int cellY = cell.getY();
 
-                if (Math.abs(cellX - x) + Math.abs(cellY - y) <= nukeRange && cell instanceof RoadCell) // TODO nuke range
+                if (Math.abs(cellX - x) + Math.abs(cellY - y) <= nukeRange && cell instanceof RoadCell)
                 {
                     casualties.addAll(((RoadCell) cell).destroy());
                 }

@@ -93,8 +93,8 @@ public final class UINetwork extends NetServer {
     /**
      * Creates a new thread to verify the client by taking a token.
      *
-     * @param client a {@link network.JsonSocket} which is connected
-     * @see server.network.NetServer#accept
+     * @param client a {@link JsonSocket} which is connected
+     * @see NetServer#accept
      */
     @Override
     protected void accept(JsonSocket client) {

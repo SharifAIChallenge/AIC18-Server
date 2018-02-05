@@ -8,7 +8,7 @@ import Map.Path;
 /**
  * Created by msi1 on 1/22/2018.
  */
-public class UnitFactory // TODO clean constants
+public class UnitFactory
 {
     private int leftoverMoney;
     private int creationIncome;

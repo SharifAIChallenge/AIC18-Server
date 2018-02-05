@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.concurrent.*;
 
 /**
- * {@link server.network.ClientNetwork} is a server which is responsible for
+ * {@link ClientNetwork} is a server which is responsible for
  * sending messages from server to players
  * and receiving players' requests (messages).
  * <p>
@@ -116,7 +116,7 @@ public class ClientNetwork extends NetServer {
     public void omitAllClients() {
         if (isListening())
             throw new RuntimeException("Server is not terminated when omitAllClients() is called.");
-        mClients.forEach(server.network.ClientHandler::terminate);
+        mClients.forEach(ClientHandler::terminate);
         mTokens.clear();
         mClients.clear();
         sendExecutor.shutdownNow();

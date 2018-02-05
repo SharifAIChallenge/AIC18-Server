@@ -12,21 +12,21 @@ import util.Log;
 import java.util.Arrays;
 
 /**
- * Core controller of the framework, controls the {@link server.core.GameLogic GameLogic}, Swarm.main loop of the game and
+ * Core controller of the framework, controls the {@link GameLogic GameLogic}, Swarm.main loop of the game and
  * does the output controlling operations.
  * <p>
  * This class runs the Swarm.main running thread of the framework. Class interacts with the clients, UI, and the
  * GameLogic itself.
  * Threads in this class, will gather the clients' events
- * (See also {@link server.network.ClientNetwork ClientNetwork}), send them to the Swarm.main Game
- * (See also {@link server.core.GameLogic GameLogic})
+ * (See also {@link ClientNetwork ClientNetwork}), send them to the Swarm.main Game
+ * (See also {@link GameLogic GameLogic})
  * The output will be manipulated and sent to the appropriate controller within a inner module of the class
  * (OutputController).
  * The sequence of the creation and running the operations of this class will be through the call of the following
  * methods.
  * {@link GameServer#start() start()} and then at the
  * moment the external terminal user wants to shut down the games loop (except than waiting for the
- * {@link server.core.GameLogic GameLogic} to flag the end of the game), the
+ * {@link GameLogic GameLogic} to flag the end of the game), the
  * {@link GameServer#shutdown() shutdown()} method would be called.
  * Note that shutting down the {@link GameServer GameServer} will not immediately stop the threads,
  * actually it will set a shut down request flag in the class, which will closes the thread in the aspect of
@@ -45,11 +45,11 @@ public class GameServer {
 
     /**
      * Constructor of the {@link GameServer GameServer}, connects the handler to the Clients through
-     * {@link server.network.ClientNetwork ClientNetwork} and to the UI through
-     * {@link server.network.UINetwork UINetwork}.
+     * {@link ClientNetwork ClientNetwork} and to the UI through
+     * {@link UINetwork UINetwork}.
      * <p>
      * The constructor accepts the instances of {@link GameServer GameServer} and
-     * {@link server.network.ClientNetwork ClientNetwork} classes. Then sets some configurations of the loops
+     * {@link ClientNetwork ClientNetwork} classes. Then sets some configurations of the loops
      * within the "turn_timeout.conf" file ({@see https://github.com/JavaChallenge/JGFramework/wiki wiki}).
      * </p>
      */
@@ -136,8 +136,8 @@ public class GameServer {
     }
 
     /**
-     * Starts the Swarm.main game ({@link server.core.GameLogic GameLogic}) loop and the
-     * {@link server.core.OutputController OutputController} operations in two new {@link java.lang.Thread Thread}.
+     * Starts the Swarm.main game ({@link GameLogic GameLogic}) loop and the
+     * {@link OutputController OutputController} operations in two new {@link Thread Thread}.
      */
     public void start() {
         mLoop = new Loop();
@@ -145,7 +145,7 @@ public class GameServer {
     }
 
     /**
-     * Registers a shutdown request into the Swarm.main loop and {@link server.core.OutputController OutputController} class
+     * Registers a shutdown request into the Swarm.main loop and {@link OutputController OutputController} class
      * <p>
      * Note that the shutdown requests, will be responded as soon as the current queue of operations got freed.
      * </p>
@@ -175,10 +175,10 @@ public class GameServer {
         private Event[][] clientEvents;
 
         /**
-         * The run method of the {@link java.lang.Runnable Runnable} interface which will create a
+         * The run method of the {@link Runnable Runnable} interface which will create a
          * {@link java.util.concurrent.Callable Callable} instance and call it in a while until the finish flag if the
          * game had been raised or the shutdown request sent to the class (through
-         * {@link GameServer.Loop#shutdown() shutdown()} method)
+         * {@link Loop#shutdown() shutdown()} method)
          */
         @Override
         public void run() {
@@ -192,7 +192,6 @@ public class GameServer {
                     mGameLogic.simulateEvents(environmentEvents, clientEvents);
                 } catch (Exception e) {
                     err("Simulation", e);
-                    e.printStackTrace(); // TODO remove
                 }
                 try {
                     mGameLogic.generateOutputs();
@@ -297,7 +296,7 @@ public class GameServer {
         }
 
         /**
-         * Will set the shutdown request flag in order to finish the Swarm.main {@link GameServer.Loop Loop} at
+         * Will set the shutdown request flag in order to finish the Swarm.main {@link Loop Loop} at
          * the first possible turn
          */
         public void shutdown() {

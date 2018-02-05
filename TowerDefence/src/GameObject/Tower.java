@@ -17,10 +17,9 @@ public abstract class Tower extends WarObject
     private int damage;
     private double damageCoeff;
     private int cost;
-    private int attackRange; // TODO turn to double
+    private int attackRange;
     protected int tickPerAttack;
     protected int attackCounter;
-    private int isAOE; // TODO seems useless
     private int level;
 
     public Tower(int id, int x, int y, int level, int damage, double damageCoeff, int tickPerAttack, int attackRange)
@@ -89,7 +88,7 @@ public abstract class Tower extends WarObject
     }
 
     protected ArrayList<Unit> findNearestUnitToEnd(RoadCell cell)
-    { //TODO Priority?
+    {
         ArrayList<Unit> targets = new ArrayList<>();
         ArrayList<Unit> units = cell.getUnits();
         int minDistance = Integer.MAX_VALUE;
@@ -182,16 +181,6 @@ public abstract class Tower extends WarObject
     public void setTickPerAttack(int tickPerAttack)
     {
         this.tickPerAttack = tickPerAttack;
-    }
-
-    public int getIsAOE()
-    {
-        return isAOE;
-    }
-
-    public void setIsAOE(int isAOE)
-    {
-        this.isAOE = isAOE;
     }
 
     public int getLevel()

@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
  * This class is a member of {@link server.network}.
  *
  * @see com.google.gson.Gson
- * @see java.net.Socket
+ * @see Socket
  */
 public class JsonSocket {
 
@@ -54,10 +54,10 @@ public class JsonSocket {
      *
      * @param host the host name.
      * @param port the port number.
-     * @throws java.io.IOException if an I/O error occurs when creating the socket or
+     * @throws IOException if an I/O error occurs when creating the socket or
      *                             its input or output stream.
-     * @see java.net.Socket#Socket(String, int)
-     * @see #JsonSocket(java.net.Socket)
+     * @see Socket#Socket(String, int)
+     * @see #JsonSocket(Socket)
      */
     public JsonSocket(String host, int port) throws IOException {
         this(new Socket(host, port));
@@ -67,7 +67,7 @@ public class JsonSocket {
      * Uses an existing socket to transmit json strings.
      *
      * @param socket the socket object.
-     * @throws java.io.IOException if an I/O error occurs when creating the
+     * @throws IOException if an I/O error occurs when creating the
      *                             input or output stream of the socket.
      */
     public JsonSocket(Socket socket) throws IOException {
@@ -79,8 +79,8 @@ public class JsonSocket {
     /**
      * Closes the underlying socket.
      *
-     * @throws java.io.IOException if an I/O error occurs when closing the socket.
-     * @see java.net.Socket#close
+     * @throws IOException if an I/O error occurs when closing the socket.
+     * @see Socket#close
      * @see #isClosed
      */
     public void close() throws IOException {
@@ -91,7 +91,7 @@ public class JsonSocket {
      * Returns the closed state of the socket.
      *
      * @return true if the socket has been closed
-     * @see java.net.Socket#isClosed
+     * @see Socket#isClosed
      * @see #close
      */
     public boolean isClosed() {
@@ -103,7 +103,7 @@ public class JsonSocket {
      * output stream.
      *
      * @param obj the object to send.
-     * @throws java.io.IOException if an I/O error occurs, e.g. when the socket is closed.
+     * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
      * @see com.google.gson.Gson#toJson(Object)
      */
     public void send(Object obj) throws IOException {
@@ -120,7 +120,7 @@ public class JsonSocket {
      * a <code>JsonObject</code>.
      *
      * @return the received <code>JsonObject</code>
-     * @throws java.io.IOException if an I/O error occurs, e.g. when the socket is closed.
+     * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
      * @see com.google.gson.Gson#fromJson(String, Class)
      * @see #get(Class)
      */
@@ -135,7 +135,7 @@ public class JsonSocket {
      * @param classOfInput object's class
      * @param <T>          type
      * @return the received object
-     * @throws java.io.IOException if an I/O error occurs, e.g. when the socket is closed.
+     * @throws IOException if an I/O error occurs, e.g. when the socket is closed.
      * @see com.google.gson.Gson#fromJson(String, Class)
      * @see #get
      */

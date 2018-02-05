@@ -12,10 +12,10 @@ import java.util.function.Consumer;
  * some port for the new clients.
  * <p>
  * The actual work of the {@link NetServerThread} is done by a
- * {@link java.net.ServerSocket}. When a <code>NetServerThread</code> is ran,
+ * {@link ServerSocket}. When a <code>NetServerThread</code> is ran,
  * it creates a new server socket to listen on that port. When a new client is
  * connected to that port, it passes the client's
- * {@link network.JsonSocket} to the specified consumer.
+ * {@link JsonSocket} to the specified consumer.
  * <p>
  * The consumer should accept the client and perform necessary operations.
  * <p>
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * So it is guaranteed that server is always listening on the port.
  *
  * @see NetServer
- * @see java.net.ServerSocket
+ * @see ServerSocket
  */
 public class NetServerThread extends Thread {
 
@@ -88,7 +88,7 @@ public class NetServerThread extends Thread {
      * Runs the server and handles new clients. The method can not be completed
      * without throwing an exception.
      *
-     * @throws java.io.IOException if an I/O error occurs,
+     * @throws IOException if an I/O error occurs,
      *                     e.g. when the server socket is closed.
      * @see #terminate
      */
