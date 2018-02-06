@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import javafx.util.Pair;
 import model.Event;
 import network.Json;
 import network.data.Message;

@@ -11,6 +11,6 @@ public class InvalidEventException extends Exception {
     }
 
     public void print(String message) {
-        System.out.println(message);
+        System.err.println(message);
     }
 }

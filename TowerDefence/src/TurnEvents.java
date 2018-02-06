@@ -3,12 +3,10 @@ import GameObject.Unit;
 import GameObject.WarObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import javafx.util.Pair;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
-
 /**
  * Created by msi1 on 1/31/2018.
  */

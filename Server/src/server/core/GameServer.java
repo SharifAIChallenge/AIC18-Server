@@ -11,6 +11,7 @@ import server.network.UINetwork;
 import util.Log;
 
 import java.util.Arrays;
+import java.util.concurrent.Semaphore;
 
 /**
  * Core controller of the framework, controls the {@link GameLogic GameLogic}, Swarm.main loop of the game and
@@ -41,8 +42,10 @@ public class GameServer {
     private GameLogic mGameLogic;
     private OutputController mOutputController;
     private ClientConfig[] mClientConfigs;
+    private Semaphore semaphore;
 
     private Loop mLoop;
+
 
     /**
      * Constructor of the {@link GameServer GameServer}, connects the handler to the Clients through
@@ -64,6 +67,7 @@ public class GameServer {
         mUINetwork = new UINetwork();
         mOutputController = new OutputController(mUINetwork);
         initGame();
+        semaphore = new Semaphore(0);
     }
 
     private void setClientConfigs() {
@@ -282,12 +286,16 @@ public class GameServer {
                 } else {
                     mOutputController.putMessage(mGameLogic.getStatusMessage());
                 }
+                semaphore.release();
             };
 
             while (!shutdownRequest) {
                 long start = System.currentTimeMillis();
                 try {
                     simulate.run();
+                    System.err.println("Before Acquire() function");
+                    semaphore.acquire();
+                    System.err.println("After Acquire() function");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
