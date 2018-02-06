@@ -110,8 +110,7 @@ public class GameEngine implements GameLogic {
         secondScenario = new Scenario(p2, p1, secondMap, turnEvents);
         scenarios.add(firstScenario);
         scenarios.add(secondScenario);
-//        maxTurns = Constants.NUMBER_OF_TURNS;
-        maxTurns = 20;
+        maxTurns = Constants.NUMBER_OF_TURNS;
     }
 
     private Map createMap(JsonObject initJson) {
