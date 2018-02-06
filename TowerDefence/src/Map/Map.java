@@ -28,11 +28,6 @@ public class Map
     private int nukeRange;
     private Gson gson = new Gson();
 
-    public Map()
-    {
-        // TODO init map
-    }
-
     public Map(JsonObject mapCellsData, JsonArray pathsData)
     {
         this.mapCellsData = mapCellsData;

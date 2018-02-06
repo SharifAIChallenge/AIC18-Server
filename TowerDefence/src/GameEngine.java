@@ -441,7 +441,7 @@ public class GameEngine implements GameLogic {
 
     @Override
     public boolean isGameFinished() {
-        if (currentTurn <= maxTurns - 1) {
+        if (currentTurn < maxTurns - 1) {
             if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
                 p1.setHealth(0);
                 finishLog();
@@ -472,7 +472,7 @@ public class GameEngine implements GameLogic {
             } else {
                 return false;
             }
-        } else if (currentTurn > maxTurns - 1) { //TODO TOTAL Transactions + current income
+        } else if (currentTurn >= maxTurns - 1) {
             if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
                 p1.setHealth(0);
                 finishLog();
