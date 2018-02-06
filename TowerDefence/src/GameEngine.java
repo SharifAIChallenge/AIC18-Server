@@ -3,6 +3,7 @@ import Map.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import javafx.util.Pair;
 import model.Event;
 import network.Json;
@@ -69,7 +70,15 @@ public class GameEngine implements GameLogic
     public void init()
     {
         String initStr = readMapFile(PARAM_MAP);
-        JsonObject initJson = gson.fromJson(initStr, JsonArray.class).get(0).getAsJsonObject();
+        JsonObject initJson = null;
+        try
+        {
+            initJson = gson.fromJson(initStr, JsonArray.class).get(0).getAsJsonObject();
+        } catch (JsonSyntaxException e)
+        {
+            System.err.println("Invalid map file!");
+            System.exit(0);
+        }
 
         Constants.setConsts(initJson.getAsJsonArray("params"));
         Map firstMap = createMap(initJson);
@@ -81,6 +90,11 @@ public class GameEngine implements GameLogic
     {
         String result = "";
         File mapFile = paramMap.getValue();
+        if (mapFile == null)
+        {
+            System.err.println("Invalid map file!");
+            System.exit(0);
+        }
         try (Scanner in = new Scanner(mapFile))
         {
             while (in.hasNext())
