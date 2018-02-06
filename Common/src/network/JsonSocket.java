@@ -147,7 +147,8 @@ public class JsonSocket {
                 return null;
             current = mIn.read();
             if (current == -1)
-                throw new IOException("EOF reached.");
+                System.err.println("Game Finished!");
+                System.exit(0);
             if (current == '\0')
                 break;
             if (total >= length) {
