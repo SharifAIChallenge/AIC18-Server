@@ -294,9 +294,10 @@ public class Player
 
         myData = getSelfData();
 
-        oppData[0] = health;
-        oppData[1] = beanNum;
-        oppData[2] = nukeNum;
+        oppData[0] = opponent.getHealth();
+        oppData[1] = opponent.getBeanNum();
+        oppData[2] = opponent.getNukeNum();
+
 
         data = new Object[][]{myData, oppData};
         jsonArray = (JsonArray) gson.toJsonTree(data);
