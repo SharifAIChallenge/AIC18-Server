@@ -246,6 +246,7 @@ public class GameServer {
                         throw new RuntimeException("Waiting for clients interrupted");
                     }
                 }
+                //t
                 mClientNetwork.stopReceivingAll();
 
                 clientEvents = new Event[mClientsNum][];
@@ -303,14 +304,14 @@ public class GameServer {
                 long remaining = mGameLogic.getTurnTimeout() - (end - start);
                 if (remaining <= 0) {
                     Log.i("GameServer", "Simulation timeout passed!");
-                } /*else {
+                } else {
                     try {
                         Thread.sleep(remaining);
                     } catch (InterruptedException e) {
                         Log.i("GameServer", "Loop interrupted!");
                         break;
                     }
-                }*/
+                }
             }
 
             synchronized (this) {
