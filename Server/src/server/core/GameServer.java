@@ -280,14 +280,14 @@ public class GameServer {
                 long remaining = mGameLogic.getTurnTimeout() - (end - start);
                 if (remaining <= 0) {
                     Log.i("GameServer", "Simulation timeout passed!");
-                } else {
+                } /*else {
                     try {
                         Thread.sleep(remaining);
                     } catch (InterruptedException e) {
                         Log.i("GameServer", "Loop interrupted!");
                         break;
                     }
-                }
+                }*/
             }
 
             synchronized (this) {
