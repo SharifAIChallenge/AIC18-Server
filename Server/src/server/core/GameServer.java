@@ -200,7 +200,7 @@ public class GameServer {
                 }
 
                 mOutputController.putMessage(mGameLogic.getUIMessage());
-                mOutputController.putMessage(mGameLogic.getStatusMessage());
+//                mOutputController.putMessage(mGameLogic.getStatusMessage());
 
                 Message[] output = mGameLogic.getClientMessages();
                 for (int i = 0; i < output.length; ++i) {
@@ -266,6 +266,8 @@ public class GameServer {
                         System.exit(0);
 //                    }
                     return;
+                } else {
+                    mOutputController.putMessage(mGameLogic.getStatusMessage());
                 }
             };
 

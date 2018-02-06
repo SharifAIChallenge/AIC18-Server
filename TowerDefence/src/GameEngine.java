@@ -124,7 +124,8 @@ public class GameEngine implements GameLogic
         secondScenario = new Scenario(p2, p1, secondMap, turnEvents);
         scenarios.add(firstScenario);
         scenarios.add(secondScenario);
-        maxTurns = Constants.NUMBER_OF_TURNS;
+//        maxTurns = Constants.NUMBER_OF_TURNS;
+        maxTurns = 20;
     }
 
     private Map createMap(JsonObject initJson)
@@ -542,20 +543,28 @@ public class GameEngine implements GameLogic
                 p2.setHealth(0);
                 finishLog();
             } else {
-                int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
-                int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
-                if (p1TotalTransaction > p2TotalTransaction) {
-                    p1.setHealth(1);
+                if (p1.getHealth() < p2.getHealth()){
+                    p1.setHealth(0);
+                    finishLog();
+                } else if (p1.getHealth() > p2.getHealth()) {
                     p2.setHealth(0);
                     finishLog();
-                } else if (p1TotalTransaction < p2TotalTransaction) {
-                    p1.setHealth(0);
-                    p2.setHealth(1);
-                    finishLog();
-                } else {
-                    p1.setHealth(0);
-                    p2.setHealth(0);
-                    finishLog();
+                } else if (p1.getHealth() == p2.getHealth()){
+                    int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
+                    int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
+                    if (p1TotalTransaction > p2TotalTransaction) {
+//                        p1.setHealth(1);
+                        p2.setHealth(0);
+                        finishLog();
+                    } else if (p1TotalTransaction < p2TotalTransaction) {
+                        p1.setHealth(0);
+//                        p2.setHealth(1);
+                        finishLog();
+                    } else {
+                        p1.setHealth(0);
+                        p2.setHealth(0);
+                        finishLog();
+                    }
                 }
             }
             return true;
@@ -565,6 +574,7 @@ public class GameEngine implements GameLogic
 
     public void finishLog() {
         try {
+            getStatusMessage();
             log.write("]".getBytes());
             log.close();
         } catch (IOException e) {

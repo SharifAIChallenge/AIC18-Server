@@ -125,7 +125,12 @@ public class ClientHandler {
             while (!sendTerminateFlag) {
                 try {
                     Thread.sleep(0);
-                    Message msg = messagesToSend.take();
+                    Message msg = null;
+                    try {
+                        msg = messagesToSend.take();
+                    } catch (InterruptedException ignored) {
+
+                    }
                     if (sendTerminateFlag)
                         return;
                     if (msg == null)
