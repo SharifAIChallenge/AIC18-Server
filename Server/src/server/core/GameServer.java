@@ -1,6 +1,7 @@
 package server.core;
 
 //import Swarm.SwarmGameLogic;
+
 import model.Event;
 import network.data.Message;
 import server.config.ClientConfig;
@@ -34,11 +35,11 @@ import java.util.Arrays;
  * </p>
  */
 public class GameServer {
+    private final int mClientsNum;
     private ClientNetwork mClientNetwork;
     private UINetwork mUINetwork;
     private GameLogic mGameLogic;
     private OutputController mOutputController;
-    private final int mClientsNum;
     private ClientConfig[] mClientConfigs;
 
     private Loop mLoop;
@@ -157,6 +158,18 @@ public class GameServer {
             mOutputController.shutdown();
     }
 
+    public void waitForFinish() throws InterruptedException {
+        final Loop loop = mLoop;
+        if (loop != null)
+            synchronized (loop) {
+                loop.wait();
+            }
+    }
+
+    private void err(String title, Throwable exception) {
+        System.err.println(title + " failed with message " + exception.getMessage() + ", stack: " + Arrays.toString(exception.getStackTrace()));
+    }
+
     /**
      * In order to give the loop a thread to be ran beside of the Swarm.main loop.
      * <p>
@@ -200,7 +213,7 @@ public class GameServer {
                 }
 
                 mOutputController.putMessage(mGameLogic.getUIMessage());
-                mOutputController.putMessage(mGameLogic.getStatusMessage());
+//                mOutputController.putMessage(mGameLogic.getStatusMessage());
 
                 Message[] output = mGameLogic.getClientMessages();
                 for (int i = 0; i < output.length; ++i) {
@@ -263,9 +276,11 @@ public class GameServer {
                     }
                     // TODO add params to game logic
 //                    if(SwarmGameLogic.PARAM_SHOW_DEBUG_UI.equals(false)) {
-                        System.exit(0);
+                    System.exit(0);
 //                    }
                     return;
+                } else {
+                    mOutputController.putMessage(mGameLogic.getStatusMessage());
                 }
             };
 
@@ -302,18 +317,6 @@ public class GameServer {
         public void shutdown() {
             this.shutdownRequest = true;
         }
-    }
-
-    public void waitForFinish() throws InterruptedException {
-        final Loop loop = mLoop;
-        if (loop != null)
-            synchronized (loop) {
-                loop.wait();
-            }
-    }
-
-    private void err(String title, Throwable exception) {
-        System.err.println(title + " failed with message " + exception.getMessage() + ", stack: " + Arrays.toString(exception.getStackTrace()));
     }
 
 }

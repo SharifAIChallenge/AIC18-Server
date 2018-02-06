@@ -5,6 +5,7 @@ import util.Log;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.function.Consumer;
 
 /**
@@ -79,6 +80,8 @@ public class NetServerThread extends Thread {
         while (!terminateFlag)
             try {
                 runServer();
+            } catch (SocketException ignore){
+
             } catch (Exception e) {
                 Log.i(TAG, "Server socket closed", e);
             }
