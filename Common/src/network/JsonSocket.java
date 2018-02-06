@@ -146,9 +146,10 @@ public class JsonSocket {
             if (total > MAX_LENGTH_BYTES)
                 return null;
             current = mIn.read();
-            if (current == -1)
+            if (current == -1) {
                 System.err.println("Game Finished!");
                 System.exit(0);
+            }
             if (current == '\0')
                 break;
             if (total >= length) {
