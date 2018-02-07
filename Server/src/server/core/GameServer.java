@@ -234,11 +234,11 @@ public class GameServer {
                 } catch (Exception e) {
                     err("Simulation", e);
                 }
-                try {
-                    mGameLogic.generateOutputs();
-                } catch (Exception e) {
-                    err("Generating outputs", e);
-                }
+//                try {
+//                    mGameLogic.generateOutputs();
+//                } catch (Exception e) {
+//                    err("Generating outputs", e);
+//                }
 
                 mOutputController.putMessage(mGameLogic.getUIMessage());
 //                mOutputController.putMessage(mGameLogic.getStatusMessage());
@@ -258,8 +258,8 @@ public class GameServer {
 //                }
 
                 mClientNetwork.startReceivingAll();
-
                 mClientNetwork.sendAllBlocking();
+
 
 //                long elapsedTime = System.currentTimeMillis();
 //                environmentEvents = mGameLogic.makeEnvironmentEvents();
@@ -274,13 +274,12 @@ public class GameServer {
 //                }
 
                 try {
-                    semaphore.tryAcquire(1, timeout, TimeUnit.MILLISECONDS); // TODO Check permits number (1 or 2 ?)
+                    semaphore.tryAcquire(2, timeout, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
                 mClientNetwork.releaseClients();
-
                 mClientNetwork.stopReceivingAll();
 
                 clientEvents = new Event[mClientsNum][];

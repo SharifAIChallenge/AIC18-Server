@@ -234,7 +234,7 @@ public class ClientHandler {
                         Event lastReceivedEvent = Json.GSON.fromJson(lastReceivedMessage.args.get(0), Event.class);
                         if (lastReceivedEvent.getType().equals("end")) {
                             int eventTurn = Integer.parseInt(lastReceivedEvent.getArgs()[0]);
-                            if (eventTurn == currentTurn.get()) {
+                            if (eventTurn == currentTurn.get() + 1) {
                                 simulateSemaphore.release();
                             }
                             semaphore.acquire();
