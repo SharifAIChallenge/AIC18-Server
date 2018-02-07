@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Future on 1/21/18.
@@ -34,13 +35,13 @@ public class GameEngine implements GameLogic {
     private Player p2;
     private ArrayList<Player> players = new ArrayList<>();
     private int maxTurns;
-    private int currentTurn = -1;
+    private static AtomicInteger currentTurn = new AtomicInteger(-1);
     private Gson gson = new Gson();
     private TurnEvents turnEvents;
     private boolean isHeavyTurn = false;
 
     public static void main(String[] args) throws InterruptedException {
-        GameServer gameServer = new GameServer(new GameEngine(), args);
+        GameServer gameServer = new GameServer(new GameEngine(), args, currentTurn);
         gameServer.start();
         gameServer.waitForFinish();
     }
@@ -208,6 +209,8 @@ public class GameEngine implements GameLogic {
 //                            System.out.println("Bean Received!");
                             beanData.add(parseSpecialEventData(event.getArgs()));
                             break;
+                        case "end":         // Useless
+                            break;
                         default:
                             throw new InvalidEventException("Event Type Error: event.getType() is invalid");
                     }
@@ -246,12 +249,12 @@ public class GameEngine implements GameLogic {
     }
 
     private void moveToNextTurn() {
-        currentTurn++;
-        if (currentTurn == 0) {
+        currentTurn.incrementAndGet();
+        if (currentTurn.get() == 0) {
             return;
         }
 
-        if (currentTurn % 10 == 9) {
+        if (currentTurn.get() % 10 == 9) {
             PARAM_CLIENT_TIMEOUT = 1000;
             PARAM_TURN_TIMEOUT = 2000;
             isHeavyTurn = true;
@@ -440,7 +443,7 @@ public class GameEngine implements GameLogic {
 
     @Override
     public boolean isGameFinished() {
-        if (currentTurn < maxTurns - 1) {
+        if (currentTurn.get() < maxTurns - 1) {
             if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
                 p1.setHealth(0);
                 finishLog();
@@ -471,7 +474,7 @@ public class GameEngine implements GameLogic {
             } else {
                 return false;
             }
-        } else if (currentTurn >= maxTurns - 1) {
+        } else if (currentTurn.get() >= maxTurns - 1) {
             if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
                 p1.setHealth(0);
                 finishLog();

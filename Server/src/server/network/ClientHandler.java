@@ -1,12 +1,17 @@
 package server.network;
 
+import model.Event;
+import network.Json;
 import network.JsonSocket;
 import network.data.Message;
+import server.config.IntegerParam;
 import util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -83,6 +88,21 @@ public class ClientHandler {
      */
     private int numOfExceptions;
 
+    /**
+     * Semaphore of this client for handling messages
+     */
+    private Semaphore semaphore;
+
+    /**
+     * current Turn in game
+     */
+    private AtomicInteger currentTurn;
+
+    /**
+     * Simulate Thread Semaphore
+     */
+    private Semaphore simulateSemaphore;
+
 
     /**
      * Constructor.
@@ -93,6 +113,18 @@ public class ClientHandler {
         messagesQueued = new ArrayList<>();
         clientLock = new Object();
         messageNotifier = new Object();
+    }
+
+    public ClientHandler(Semaphore simulateSemaphore, AtomicInteger currentTurn) {
+        messagesToSend = new LinkedBlockingDeque<>();
+        receivedMessages = new ArrayList<>();
+        messagesQueued = new ArrayList<>();
+        clientLock = new Object();
+        messageNotifier = new Object();
+
+        semaphore = new Semaphore(0);
+        this.simulateSemaphore = simulateSemaphore;
+        this.currentTurn = currentTurn;
     }
 
     /**
@@ -199,6 +231,15 @@ public class ClientHandler {
                 try {
                     receive();
                     if (lastReceivedMessage != null) {
+                        Event lastReceivedEvent = Json.GSON.fromJson(lastReceivedMessage.args.get(0), Event.class);
+                        if (lastReceivedEvent.getType().equals("end")) {
+                            int eventTurn = Integer.parseInt(lastReceivedEvent.getArgs()[0]);
+                            if (eventTurn == currentTurn.get()) {
+                                simulateSemaphore.release();
+                            }
+                            semaphore.acquire();
+                            continue;
+                        }
                         if (timeValidator.get()) {
                             synchronized (receivedMessages) {
                                 receivedMessages.add(lastReceivedMessage);
@@ -331,4 +372,7 @@ public class ClientHandler {
             terminate();
     }
 
+    public Semaphore getSemaphore() {
+        return semaphore;
+    }
 }

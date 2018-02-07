@@ -6,12 +6,15 @@ import model.Event;
 import network.data.Message;
 import server.config.ClientConfig;
 import server.config.Configs;
+import server.config.IntegerParam;
 import server.network.ClientNetwork;
 import server.network.UINetwork;
 import util.Log;
 
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Core controller of the framework, controls the {@link GameLogic GameLogic}, Swarm.main loop of the game and
@@ -42,9 +45,13 @@ public class GameServer {
     private GameLogic mGameLogic;
     private OutputController mOutputController;
     private ClientConfig[] mClientConfigs;
-    private Semaphore semaphore;
 
     private Loop mLoop;
+
+    private Semaphore semaphore;
+    private AtomicInteger currentTurn;
+
+
 
 
     /**
@@ -63,11 +70,28 @@ public class GameServer {
         mGameLogic.init();
         mClientsNum = mGameLogic.getClientsNum();
         setClientConfigs();
+
         mClientNetwork = new ClientNetwork();
+
         mUINetwork = new UINetwork();
         mOutputController = new OutputController(mUINetwork);
         initGame();
-        semaphore = new Semaphore(0);
+    }
+
+    public GameServer(GameLogic gameLogic, String[] cmdArgs, AtomicInteger currentTurn) {
+        Configs.handleCMDArgs(cmdArgs);
+        mGameLogic = gameLogic;
+        mGameLogic.init();
+        mClientsNum = mGameLogic.getClientsNum();
+        setClientConfigs();
+
+        semaphore = new Semaphore(1);
+        this.currentTurn = currentTurn;
+        mClientNetwork = new ClientNetwork(semaphore, currentTurn);
+
+        mUINetwork = new UINetwork();
+        mOutputController = new OutputController(mUINetwork);
+        initGame();
     }
 
     private void setClientConfigs() {
@@ -234,19 +258,29 @@ public class GameServer {
 //                }
 
                 mClientNetwork.startReceivingAll();
+
                 mClientNetwork.sendAllBlocking();
-                long elapsedTime = System.currentTimeMillis();
-                environmentEvents = mGameLogic.makeEnvironmentEvents();
-                elapsedTime = System.currentTimeMillis() - elapsedTime;
+
+//                long elapsedTime = System.currentTimeMillis();
+//                environmentEvents = mGameLogic.makeEnvironmentEvents();
+//                elapsedTime = System.currentTimeMillis() - elapsedTime;
                 long timeout = mGameLogic.getClientResponseTimeout();
-                if (timeout - elapsedTime > 0) {
-                    try {
-                        Thread.sleep(timeout - elapsedTime);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException("Waiting for clients interrupted");
-                    }
+//                if (timeout - elapsedTime > 0) {
+//                    try {
+//                        Thread.sleep(timeout - elapsedTime);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException("Waiting for clients interrupted");
+//                    }
+//                }
+
+                try {
+                    semaphore.tryAcquire(1, timeout, TimeUnit.MILLISECONDS); // TODO Check permits number (1 or 2 ?)
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                //t
+
+                mClientNetwork.releaseClients();
+
                 mClientNetwork.stopReceivingAll();
 
                 clientEvents = new Event[mClientsNum][];
@@ -304,14 +338,14 @@ public class GameServer {
                 long remaining = mGameLogic.getTurnTimeout() - (end - start);
                 if (remaining <= 0) {
                     Log.i("GameServer", "Simulation timeout passed!");
-                } else {
+                } /*else {
                     try {
                         Thread.sleep(remaining);
                     } catch (InterruptedException e) {
                         Log.i("GameServer", "Loop interrupted!");
                         break;
                     }
-                }
+                }*/
             }
 
             synchronized (this) {

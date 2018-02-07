@@ -2,6 +2,7 @@ package server.core;
 
 import model.Event;
 import network.data.Message;
+import server.config.IntegerParam;
 
 /**
  * The abstract class representing the main game logic of the user's game.
@@ -11,6 +12,7 @@ import network.data.Message;
  */
 public interface GameLogic {
 
+    IntegerParam currentTurn = new IntegerParam("CurrentTurn", -1);
     /**
      * Returns number of players.
      *

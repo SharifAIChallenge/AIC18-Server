@@ -5,11 +5,13 @@ import network.Json;
 import network.JsonSocket;
 import network.data.Message;
 import server.config.Configs;
+import server.config.IntegerParam;
 import util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@link ClientNetwork} is a server which is responsible for
@@ -53,6 +55,12 @@ public class ClientNetwork extends NetServer {
     // A thread pool used to accept and verify clients
     private ExecutorService acceptExecutor;
 
+    //Simulate Thread Semaphore
+    private Semaphore simulateSemaphore;
+
+    //Current Turn of game
+    private AtomicInteger currentTurn;
+
     /**
      * Constructor
      */
@@ -61,6 +69,16 @@ public class ClientNetwork extends NetServer {
         mClients = new ArrayList<>();
         sendExecutor = Executors.newCachedThreadPool();
         receiveExecutor = Executors.newCachedThreadPool();
+    }
+
+    public ClientNetwork(Semaphore simulateSemaphore, AtomicInteger currentTurn) {
+        mTokens = new HashMap<>();
+        mClients = new ArrayList<>();
+        sendExecutor = Executors.newCachedThreadPool();
+        receiveExecutor = Executors.newCachedThreadPool();
+
+        this.simulateSemaphore = simulateSemaphore;
+        this.currentTurn = currentTurn;
     }
 
     /**
@@ -99,7 +117,7 @@ public class ClientNetwork extends NetServer {
      * @return new handler
      */
     private ClientHandler newClient() {
-        ClientHandler client = new ClientHandler();
+        ClientHandler client = new ClientHandler(simulateSemaphore, currentTurn);
         sendExecutor.submit(client.getSender());
         return client;
     }
@@ -389,4 +407,9 @@ public class ClientNetwork extends NetServer {
         mClients.forEach(ClientHandler::terminateSending);
     }
 
+    public void releaseClients() {
+        for (ClientHandler client : mClients) {
+            client.getSemaphore().release();
+        }
+    }
 }
