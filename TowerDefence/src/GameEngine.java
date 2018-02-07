@@ -10,6 +10,7 @@ import network.data.Message;
 import server.config.FileParam;
 import server.core.GameLogic;
 import server.core.GameServer;
+import util.LogScreen;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,6 +42,8 @@ public class GameEngine implements GameLogic {
     private boolean isHeavyTurn = false;
 
     public static void main(String[] args) throws InterruptedException {
+        LogScreen screen = new LogScreen();
+        screen.showScreen();
         GameServer gameServer = new GameServer(new GameEngine(), args, currentTurn);
         gameServer.start();
         gameServer.waitForFinish();
