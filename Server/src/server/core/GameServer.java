@@ -291,11 +291,11 @@ public class GameServer {
                 if (mGameLogic.isGameFinished()) {
                     try {
                         mGameLogic.terminate();
-                        Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[]{});
-                        for (int i = 0; i < mClientsNum; i++) {
-                            mClientNetwork.queue(i, shutdown);
-                        }
-                        mClientNetwork.sendAllBlocking();
+//                        Message shutdown = new Message(Message.NAME_SHUTDOWN, new Object[]{});
+//                        for (int i = 0; i < mClientsNum; i++) {
+//                            mClientNetwork.queue(i, shutdown);
+//                        }
+//                        mClientNetwork.sendAllBlocking();
                         mClientNetwork.shutdownAll();
                         mClientNetwork.terminate();
                         Message uiShutdown = new Message(Message.NAME_SHUTDOWN, new Object[]{});
