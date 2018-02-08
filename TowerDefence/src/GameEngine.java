@@ -11,10 +11,7 @@ import server.config.FileParam;
 import server.core.GameLogic;
 import server.core.GameServer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,12 +19,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by Future on 1/21/18.
  */
-public class GameEngine implements GameLogic {
+public class GameEngine implements GameLogic
+{
     public static final FileParam PARAM_MAP = new FileParam("Map", null, ".*\\.map");
     public static int PARAM_CLIENT_TIMEOUT = 200;
     public static int PARAM_TURN_TIMEOUT = 400;
 
-    public FileOutputStream log;
+    //    public FileOutputStream log;
+    private RandomAccessFile logFile;
+    private long lastStatusLogFileSeek = 0;
     private Scenario firstScenario;
     private Scenario secondScenario;
     private ArrayList<Scenario> scenarios = new ArrayList<>();
@@ -35,39 +35,46 @@ public class GameEngine implements GameLogic {
     private Player p2;
     private ArrayList<Player> players = new ArrayList<>();
     private int maxTurns;
-    private static AtomicInteger currentTurn = new AtomicInteger(-1);
+    private static AtomicInteger currentTurn = new AtomicInteger(0);
     private Gson gson = new Gson();
     private TurnEvents turnEvents;
     private boolean isHeavyTurn = false;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException
+    {
         GameServer gameServer = new GameServer(new GameEngine(), args, currentTurn);
         gameServer.start();
         gameServer.waitForFinish();
     }
 
     @Override
-    public int getClientsNum() {
+    public int getClientsNum()
+    {
         return 2;
     }
 
     @Override
-    public long getClientResponseTimeout() {
+    public long getClientResponseTimeout()
+    {
         return PARAM_CLIENT_TIMEOUT;
     }
 
     @Override
-    public long getTurnTimeout() {
+    public long getTurnTimeout()
+    {
         return PARAM_TURN_TIMEOUT;
     }
 
     @Override
-    public void init() {
+    public void init()
+    {
         String initStr = readMapFile(PARAM_MAP);
         JsonObject initJson = null;
-        try {
+        try
+        {
             initJson = gson.fromJson(initStr, JsonArray.class).get(0).getAsJsonObject();
-        } catch (JsonSyntaxException e) {
+        } catch (JsonSyntaxException e)
+        {
             System.err.println("Invalid map file!");
             System.exit(0);
         }
@@ -78,26 +85,32 @@ public class GameEngine implements GameLogic {
         createScenarios(firstMap, secondMap);
     }
 
-    private String readMapFile(FileParam paramMap) {
+    private String readMapFile(FileParam paramMap)
+    {
         String result = "";
         File mapFile = paramMap.getValue();
-        if (mapFile == null) {
+        if (mapFile == null || !mapFile.exists())
+        {
             System.err.println("Invalid map file!");
             System.exit(0);
         }
-        try (Scanner in = new Scanner(mapFile)) {
-            while (in.hasNext()) {
+        try (Scanner in = new Scanner(mapFile))
+        {
+            while (in.hasNext())
+            {
                 result += in.nextLine();
                 result += "\n";
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e)
+        {
             e.printStackTrace();
         }
 
         return result;
     }
 
-    private void createScenarios(Map firstMap, Map secondMap) {
+    private void createScenarios(Map firstMap, Map secondMap)
+    {
         turnEvents = new TurnEvents();
         p1 = new Player(0, turnEvents);
         p2 = new Player(1, turnEvents);
@@ -113,7 +126,8 @@ public class GameEngine implements GameLogic {
         maxTurns = Constants.NUMBER_OF_TURNS;
     }
 
-    private Map createMap(JsonObject initJson) {
+    private Map createMap(JsonObject initJson)
+    {
         JsonObject mapCellsData = initJson.getAsJsonObject("map");
         JsonArray pathsData = initJson.getAsJsonArray("paths");
 
@@ -121,28 +135,43 @@ public class GameEngine implements GameLogic {
     }
 
     @Override
-    public Message getUIInitialMessage() {
+    public Message getUIInitialMessage()
+    {
         return getInitMessage();
     }
 
     @Override
-    public Message[] getClientInitialMessages() {
+    public Message[] getClientInitialMessages()
+    {
         Message[] messages = new Message[2];
         messages[0] = getInitMessage();
         messages[1] = getInitMessage();
 
-        try {
-            log = new FileOutputStream("Game.txt");
-            log.write("[".getBytes());
-            log.write(Json.GSON.toJson(messages[0]).getBytes());
-        } catch (IOException e) {
+        try
+        {
+//            log = new FileOutputStream("Game.txt");
+//            log.write("[".getBytes());
+//            log.write(Json.GSON.toJson(messages[0]).getBytes());
+
+            File prevLogFile = new File("Game.txt");
+            if (prevLogFile.exists())
+            {
+                prevLogFile.delete();
+            }
+            logFile = new RandomAccessFile("Game.txt", "rw");
+            String logStr = "[" + Json.GSON.toJson(messages[0]) + "]";
+            logFile.write(logStr.getBytes());
+
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
 
         return messages;
     }
 
-    private Message getInitMessage() {
+    private Message getInitMessage()
+    {
         JsonArray resultArray = new JsonArray();
         JsonObject resultObject = new JsonObject();
 
@@ -161,7 +190,8 @@ public class GameEngine implements GameLogic {
 
 
     @Override
-    public void simulateEvents(Event[] environmentEvent, Event[][] clientsEvent) {
+    public void simulateEvents(Event[] environmentEvent, Event[][] clientsEvent)
+    {
 //        if (!checkEquality(clientsEvent[0], clientsEvent[1]))
 //        {
 //            System.out.println("ERROR IN INPUT FROM CLIENTS");
@@ -177,18 +207,22 @@ public class GameEngine implements GameLogic {
         ArrayList<ArrayList<int[]>> allNukeData = new ArrayList<>();
         ArrayList<ArrayList<int[]>> allBeanData = new ArrayList<>();
 
-        for (int i = 0; i < clientsEvent.length; i++) {
+        for (int i = 0; i < clientsEvent.length; i++)
+        {
             ArrayList<Pair<Character, Integer>> unitCreationData = new ArrayList<>();
             ArrayList<Pair<Character, int[]>> towerCreationData = new ArrayList<>();
             ArrayList<Integer> towerUpgradeDate = new ArrayList<>();
             ArrayList<int[]> nukeData = new ArrayList<>();
             ArrayList<int[]> beanData = new ArrayList<>();
 
-            for (Event event : clientsEvent[i]) {
+            for (Event event : clientsEvent[i])
+            {
 //                System.out.println("Message in turn " + currentTurn + " is not empty");
-                try {
+                try
+                {
 //                    System.out.println("event Type:" + event.getType());
-                    switch (event.getType()) {
+                    switch (event.getType())
+                    {
                         case "cu":
 //                            System.out.println("Create Unit Received!");
                             unitCreationData.add(parseUnitCreationData(event.getArgs()));
@@ -214,7 +248,8 @@ public class GameEngine implements GameLogic {
                         default:
                             throw new InvalidEventException("Event Type Error: event.getType() is invalid");
                     }
-                } catch (InvalidEventException ignored) {
+                } catch (InvalidEventException ignored)
+                {
 
                 }
             }
@@ -228,19 +263,25 @@ public class GameEngine implements GameLogic {
         tick(allUnitCreationData, allTowerCreation, allTowerUpgradeData, allNukeData, allBeanData);
     }
 
-    private boolean checkEquality(Event[] firstEvents, Event[] secondEvents) {
-        if (firstEvents.length != secondEvents.length) {
+    private boolean checkEquality(Event[] firstEvents, Event[] secondEvents)
+    {
+        if (firstEvents.length != secondEvents.length)
+        {
             return false;
         }
 
-        for (int i = 0; i < firstEvents.length; i++) {
-            if (!firstEvents[i].getType().equals(secondEvents[i].getType())) {
+        for (int i = 0; i < firstEvents.length; i++)
+        {
+            if (!firstEvents[i].getType().equals(secondEvents[i].getType()))
+            {
                 return false;
             }
-            if (firstEvents[i].getType().equals("ut") || firstEvents[i].getType().equals("b")) {
+            if (firstEvents[i].getType().equals("ut") || firstEvents[i].getType().equals("b"))
+            {
                 continue;
             }
-            if (!Json.GSON.toJson(firstEvents[i].getArgs()).equals(Json.GSON.toJson(secondEvents[i].getArgs()))) {
+            if (!Json.GSON.toJson(firstEvents[i].getArgs()).equals(Json.GSON.toJson(secondEvents[i].getArgs())))
+            {
                 return false;
             }
         }
@@ -248,19 +289,23 @@ public class GameEngine implements GameLogic {
         return true;
     }
 
-    private void moveToNextTurn() {
+    private void moveToNextTurn()
+    {
         currentTurn.incrementAndGet();
-        if (currentTurn.get() == 0) {
+        if (currentTurn.get() == 0)
+        {
             return;
         }
 
-        if (currentTurn.get() % 10 == 9) {
+        if (currentTurn.get() % 10 == 9)
+        {
             PARAM_CLIENT_TIMEOUT = 1000;
             PARAM_TURN_TIMEOUT = 2000;
             isHeavyTurn = true;
             return;
         }
-        if (PARAM_TURN_TIMEOUT == 2000) {
+        if (PARAM_TURN_TIMEOUT == 2000)
+        {
             isHeavyTurn = false;
             PARAM_CLIENT_TIMEOUT = 200;
             PARAM_TURN_TIMEOUT = 400;
@@ -270,8 +315,10 @@ public class GameEngine implements GameLogic {
     private void tick(ArrayList<ArrayList<Pair<Character, Integer>>> allUnitCreationData,
                       ArrayList<ArrayList<Pair<Character, int[]>>> allTowerCreation,
                       ArrayList<ArrayList<Integer>> allTowerUpgradeData,
-                      ArrayList<ArrayList<int[]>> allNukeData, ArrayList<ArrayList<int[]>> allBeanData) {
-        if (isHeavyTurn) {
+                      ArrayList<ArrayList<int[]>> allNukeData, ArrayList<ArrayList<int[]>> allBeanData)
+    {
+        if (isHeavyTurn)
+        {
             p1.addIncome();
             p2.addIncome();
         }
@@ -302,37 +349,44 @@ public class GameEngine implements GameLogic {
         secondScenario.updateUnitsVision();
     }
 
-    private int[] parseSpecialEventData(String[] data) throws InvalidEventException {
+    private int[] parseSpecialEventData(String[] data) throws InvalidEventException
+    {
         if (data.length != 2)
             throw new InvalidEventException("Special Event Error: data.length != 2");
 
         int[] location = new int[2];
 
-        try {
+        try
+        {
             location[0] = Integer.parseInt(data[0]);
             location[1] = Integer.parseInt(data[1]);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e)
+        {
             throw new InvalidEventException();
         }
 
         return location;
     }
 
-    private Integer parseTowerUpgradeData(String[] data) throws InvalidEventException {
+    private Integer parseTowerUpgradeData(String[] data) throws InvalidEventException
+    {
         if (data.length != 1)
             throw new InvalidEventException("Upgrade Tower Error: data.length != 1");
 
         int towerId;
-        try {
+        try
+        {
             towerId = Integer.parseInt(data[0]);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e)
+        {
             throw new InvalidEventException();
         }
 
         return towerId;
     }
 
-    private Pair<Character, int[]> parseTowerCreationData(String[] data) throws InvalidEventException {
+    private Pair<Character, int[]> parseTowerCreationData(String[] data) throws InvalidEventException
+    {
         if (data.length != 4 || data[0].length() != 1 || (data[0].charAt(0) != 'a' && data[0].charAt(0) != 'c'))
             throw new InvalidEventException("Create Tower Error: Invalid Message");
 
@@ -341,17 +395,20 @@ public class GameEngine implements GameLogic {
         int y;
         Character towerType = data[0].charAt(0);
 
-        try {
+        try
+        {
             towerLv = Integer.parseInt(data[1]);
             x = Integer.parseInt(data[2]);
             y = Integer.parseInt(data[3]);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e)
+        {
             throw new InvalidEventException("Create Tower Input Data Type is invalid");
         }
         return new Pair<>(towerType, new int[]{x, y, towerLv});
     }
 
-    private Pair<Character, Integer> parseUnitCreationData(String[] data) throws InvalidEventException {
+    private Pair<Character, Integer> parseUnitCreationData(String[] data) throws InvalidEventException
+    {
         if (data.length != 2 || data[0].length() != 1)
             throw new InvalidEventException("Create Unit Error: data.length != 1");
 
@@ -360,9 +417,11 @@ public class GameEngine implements GameLogic {
         if (unitType != 'l' && unitType != 'h')
             throw new InvalidEventException("Create Unit Error: Invalid unitType");
 
-        try {
+        try
+        {
             unitCount = Integer.parseInt(data[1]);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException e)
+        {
             throw new InvalidEventException();
         }
 
@@ -370,12 +429,14 @@ public class GameEngine implements GameLogic {
     }
 
     @Override
-    public void generateOutputs() {
+    public void generateOutputs()
+    {
         // Lol wut?!
     }
 
     @Override
-    public Message getUIMessage() {
+    public Message getUIMessage()
+    {
         JsonArray jsonElements = new JsonArray();
         JsonObject resultObject = new JsonObject();
         resultObject.add("units", firstScenario.getUnitJsonForUI());
@@ -386,42 +447,58 @@ public class GameEngine implements GameLogic {
         jsonElements.add(resultObject);
 
         Message message = new Message(Message.NAME_TURN, jsonElements);
-        try {
-            log.write(",\n".getBytes());
-            log.write(Json.GSON.toJson(message).getBytes());
-        } catch (IOException e) {
+        try
+        {
+//            log.write(",\n".getBytes());
+//            log.write(Json.GSON.toJson(message).getBytes());
+
+            String logStr = ",\n" + Json.GSON.toJson(message) + "]";
+            addMessageToLog(logStr);
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
         return new Message(Message.NAME_TURN, jsonElements);
     }
 
     @Override
-    public Message getStatusMessage() {
-        Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn, p1.getHealth(), p2.getHealth()});
-        try {
-            log.write(",\n".getBytes());
-            log.write(Json.GSON.toJson(message).getBytes());
-        } catch (IOException e) {
+    public Message getStatusMessage()
+    {
+        Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn.get(), p1.getHealth(), p2.getHealth()});
+        try
+        {
+//            log.write(",\n".getBytes());
+//            log.write(Json.GSON.toJson(message).getBytes());
+
+            String logStr = ",\n" + Json.GSON.toJson(message) + "]";
+            lastStatusLogFileSeek = logFile.length() - 1;
+            addMessageToLog(logStr);
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
-        return new Message(Message.NAME_STATUS, new Object[]{currentTurn, p1.getHealth(), p2.getHealth()});
+        return message;
     }
 
     @Override
-    public Message[] getClientMessages() {
+    public Message[] getClientMessages()
+    {
         Message[] messages = new Message[2];
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++)
+        {
             messages[i] = new Message(Message.NAME_TURN, createMsgJson(i));
         }
 
-        for (Player player : players) {
+        for (Player player : players)
+        {
             player.clearTemporaryData();
         }
 
         return messages;
     }
 
-    private JsonArray createMsgJson(int playerId) {
+    private JsonArray createMsgJson(int playerId)
+    {
         JsonArray resultArray = new JsonArray();
         Player player = players.get(playerId);
         JsonObject resultObject = new JsonObject();
@@ -437,67 +514,87 @@ public class GameEngine implements GameLogic {
     }
 
     @Override
-    public Event[] makeEnvironmentEvents() {
+    public Event[] makeEnvironmentEvents()
+    {
         return new Event[0];
     }
 
     @Override
-    public boolean isGameFinished() {
-        if (currentTurn.get() < maxTurns - 1) {
-            if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
+    public boolean isGameFinished()
+    {
+        if (currentTurn.get() <= maxTurns - 1)
+        {
+            if (p1.getHealth() <= 0 && p2.getHealth() > 0)
+            {
                 p1.setHealth(0);
                 finishLog();
                 return true;
-            } else if (p2.getHealth() <= 0 && p1.getHealth() > 0) {
+            } else if (p2.getHealth() <= 0 && p1.getHealth() > 0)
+            {
                 p2.setHealth(0);
                 finishLog();
                 return true;
-            } else if (p1.getHealth() == p2.getHealth() && p1.getHealth() == 0) {
+            } else if (p1.getHealth() == p2.getHealth() && p1.getHealth() == 0)
+            {
                 int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
                 int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
-                if (p1TotalTransaction > p2TotalTransaction) {
+                if (p1TotalTransaction > p2TotalTransaction)
+                {
                     p1.setHealth(1);
                     p2.setHealth(0);
                     finishLog();
                     return true;
-                } else if (p1TotalTransaction < p2TotalTransaction) {
+                } else if (p1TotalTransaction < p2TotalTransaction)
+                {
                     p1.setHealth(0);
                     p2.setHealth(1);
                     finishLog();
                     return true;
-                } else {
+                } else
+                {
                     p1.setHealth(0);
                     p2.setHealth(0);
                     finishLog();
                     return true;
                 }
-            } else {
+            } else
+            {
                 return false;
             }
-        } else if (currentTurn.get() >= maxTurns - 1) {
-            if (p1.getHealth() <= 0 && p2.getHealth() > 0) {
+        } else if (currentTurn.get() >= maxTurns - 1)
+        {
+            if (p1.getHealth() <= 0 && p2.getHealth() > 0)
+            {
                 p1.setHealth(0);
                 finishLog();
-            } else if (p2.getHealth() <= 0 && p1.getHealth() > 0) {
+            } else if (p2.getHealth() <= 0 && p1.getHealth() > 0)
+            {
                 p2.setHealth(0);
                 finishLog();
-            } else {
-                if (p1.getHealth() < p2.getHealth()) {
+            } else
+            {
+                if (p1.getHealth() < p2.getHealth())
+                {
                     p1.setHealth(0);
                     finishLog();
-                } else if (p1.getHealth() > p2.getHealth()) {
+                } else if (p1.getHealth() > p2.getHealth())
+                {
                     p2.setHealth(0);
                     finishLog();
-                } else if (p1.getHealth() == p2.getHealth()) {
+                } else if (p1.getHealth() == p2.getHealth())
+                {
                     int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
                     int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
-                    if (p1TotalTransaction > p2TotalTransaction) {
+                    if (p1TotalTransaction > p2TotalTransaction)
+                    {
                         p2.setHealth(0);
                         finishLog();
-                    } else if (p1TotalTransaction < p2TotalTransaction) {
+                    } else if (p1TotalTransaction < p2TotalTransaction)
+                    {
                         p1.setHealth(0);
                         finishLog();
-                    } else {
+                    } else
+                    {
                         p1.setHealth(0);
                         p2.setHealth(0);
                         finishLog();
@@ -509,19 +606,34 @@ public class GameEngine implements GameLogic {
         return false;
     }
 
-    public void finishLog() {
-        try {
-            getStatusMessage();
-            log.write("]".getBytes());
-            log.close();
-        } catch (IOException e) {
+    private void finishLog()
+    {
+        try
+        {
+//            getStatusMessage();
+//            log.write("]".getBytes());
+//            log.close();
+            Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn.get(), p1.getHealth(), p2.getHealth()});
+            String logStr = ",\n" + Json.GSON.toJson(message) + "]";
+            logFile.seek(lastStatusLogFileSeek);
+            logFile.write(logStr.getBytes());
+            logFile.close();
+        } catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void terminate() {
+    public void terminate()
+    {
 
+    }
+
+    private void addMessageToLog(String logMessage) throws IOException
+    {
+        logFile.seek(logFile.length() - 1);
+        logFile.write(logMessage.getBytes());
     }
 }
 

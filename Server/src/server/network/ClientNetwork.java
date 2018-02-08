@@ -5,7 +5,6 @@ import network.Json;
 import network.JsonSocket;
 import network.data.Message;
 import server.config.Configs;
-import server.config.IntegerParam;
 import util.Log;
 
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class ClientNetwork extends NetServer {
     private ExecutorService acceptExecutor;
 
     //Simulate Thread Semaphore
-    private Semaphore simulateSemaphore;
+    private Semaphore simulationSemaphore;
 
     //Current Turn of game
     private AtomicInteger currentTurn;
@@ -71,13 +70,13 @@ public class ClientNetwork extends NetServer {
         receiveExecutor = Executors.newCachedThreadPool();
     }
 
-    public ClientNetwork(Semaphore simulateSemaphore, AtomicInteger currentTurn) {
+    public ClientNetwork(Semaphore simulationSemaphore, AtomicInteger currentTurn) {
         mTokens = new HashMap<>();
         mClients = new ArrayList<>();
         sendExecutor = Executors.newCachedThreadPool();
         receiveExecutor = Executors.newCachedThreadPool();
 
-        this.simulateSemaphore = simulateSemaphore;
+        this.simulationSemaphore = simulationSemaphore;
         this.currentTurn = currentTurn;
     }
 
@@ -117,7 +116,7 @@ public class ClientNetwork extends NetServer {
      * @return new handler
      */
     private ClientHandler newClient() {
-        ClientHandler client = new ClientHandler(simulateSemaphore, currentTurn);
+        ClientHandler client = new ClientHandler(simulationSemaphore, currentTurn);
         sendExecutor.submit(client.getSender());
         return client;
     }
@@ -409,7 +408,7 @@ public class ClientNetwork extends NetServer {
 
     public void releaseClients() {
         for (ClientHandler client : mClients) {
-            client.getSemaphore().release();
+            client.getClientSemaphore().release();
         }
     }
 }

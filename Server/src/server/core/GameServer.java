@@ -6,7 +6,6 @@ import model.Event;
 import network.data.Message;
 import server.config.ClientConfig;
 import server.config.Configs;
-import server.config.IntegerParam;
 import server.network.ClientNetwork;
 import server.network.UINetwork;
 import util.Log;
@@ -48,7 +47,7 @@ public class GameServer {
 
     private Loop mLoop;
 
-    private Semaphore semaphore;
+    private Semaphore simulationSemaphore;
     private AtomicInteger currentTurn;
 
 
@@ -85,9 +84,9 @@ public class GameServer {
         mClientsNum = mGameLogic.getClientsNum();
         setClientConfigs();
 
-        semaphore = new Semaphore(1);
+        simulationSemaphore = new Semaphore(1);
         this.currentTurn = currentTurn;
-        mClientNetwork = new ClientNetwork(semaphore, currentTurn);
+        mClientNetwork = new ClientNetwork(simulationSemaphore, currentTurn);
 
         mUINetwork = new UINetwork();
         mOutputController = new OutputController(mUINetwork);
@@ -229,21 +228,22 @@ public class GameServer {
             }
 
             Runnable simulate = () -> {
-                try {
-                    mGameLogic.simulateEvents(environmentEvents, clientEvents);
-                } catch (Exception e) {
-                    err("Simulation", e);
-                }
+//                try {
+//                    mGameLogic.simulateEvents(environmentEvents, clientEvents);
+//                } catch (Exception e) {
+//                    err("Simulation", e);
+//                }
 //                try {
 //                    mGameLogic.generateOutputs();
 //                } catch (Exception e) {
 //                    err("Generating outputs", e);
 //                }
 
-                mOutputController.putMessage(mGameLogic.getUIMessage());
+//                mOutputController.putMessage(mGameLogic.getUIMessage());
 //                mOutputController.putMessage(mGameLogic.getStatusMessage());
 
                 Message[] output = mGameLogic.getClientMessages();
+//                mOutputController.putMessage(mGameLogic.getStatusMessage());
                 for (int i = 0; i < output.length; ++i) {
                     mClientNetwork.queue(i, output[i]);
                 }
@@ -257,14 +257,11 @@ public class GameServer {
 //                    return;
 //                }
 
-                mClientNetwork.startReceivingAll();
-                mClientNetwork.sendAllBlocking();
-
 
 //                long elapsedTime = System.currentTimeMillis();
 //                environmentEvents = mGameLogic.makeEnvironmentEvents();
 //                elapsedTime = System.currentTimeMillis() - elapsedTime;
-                long timeout = mGameLogic.getClientResponseTimeout();
+
 //                if (timeout - elapsedTime > 0) {
 //                    try {
 //                        Thread.sleep(timeout - elapsedTime);
@@ -273,19 +270,30 @@ public class GameServer {
 //                    }
 //                }
 
+                mClientNetwork.startReceivingAll();
+                mClientNetwork.sendAllBlocking();
+                long timeout = mGameLogic.getClientResponseTimeout();
                 try {
-                    semaphore.tryAcquire(2, timeout, TimeUnit.MILLISECONDS);
+                    simulationSemaphore.tryAcquire(2, timeout, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
                 mClientNetwork.releaseClients();
                 mClientNetwork.stopReceivingAll();
+
 
                 clientEvents = new Event[mClientsNum][];
                 for (int i = 0; i < mClientsNum; ++i) {
                     Event[] events = mClientNetwork.getReceivedEvents(i);
                     clientEvents[i] = events;
+                }
+
+                try {
+                    mGameLogic.simulateEvents(environmentEvents, clientEvents);
+                    mOutputController.putMessage(mGameLogic.getUIMessage());
+                    mOutputController.putMessage(mGameLogic.getStatusMessage());
+                } catch (Exception e) {
+                    err("Simulation", e);
                 }
 
                 if (mGameLogic.isGameFinished()) {
@@ -317,10 +325,8 @@ public class GameServer {
                     System.exit(0);
 //                    }
                     return;
-                } else {
-                    mOutputController.putMessage(mGameLogic.getStatusMessage());
                 }
-                semaphore.release();
+                simulationSemaphore.release();
             };
 
             while (!shutdownRequest) {
@@ -328,7 +334,7 @@ public class GameServer {
                 try {
                     simulate.run();
                     System.err.println("Before Acquire() function");
-                    semaphore.acquire();
+                    simulationSemaphore.acquire();
                     System.err.println("After Acquire() function");
                 } catch (Exception e) {
                     e.printStackTrace();

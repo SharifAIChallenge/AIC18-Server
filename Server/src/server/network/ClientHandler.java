@@ -4,7 +4,6 @@ import model.Event;
 import network.Json;
 import network.JsonSocket;
 import network.data.Message;
-import server.config.IntegerParam;
 import util.Log;
 
 import java.io.IOException;
@@ -91,7 +90,7 @@ public class ClientHandler {
     /**
      * Semaphore of this client for handling messages
      */
-    private Semaphore semaphore;
+    private Semaphore clientSemaphore;
 
     /**
      * current Turn in game
@@ -101,7 +100,7 @@ public class ClientHandler {
     /**
      * Simulate Thread Semaphore
      */
-    private Semaphore simulateSemaphore;
+    private Semaphore simulationSemaphore;
 
 
     /**
@@ -115,15 +114,15 @@ public class ClientHandler {
         messageNotifier = new Object();
     }
 
-    public ClientHandler(Semaphore simulateSemaphore, AtomicInteger currentTurn) {
+    public ClientHandler(Semaphore simulationSemaphore, AtomicInteger currentTurn) {
         messagesToSend = new LinkedBlockingDeque<>();
         receivedMessages = new ArrayList<>();
         messagesQueued = new ArrayList<>();
         clientLock = new Object();
         messageNotifier = new Object();
 
-        semaphore = new Semaphore(0);
-        this.simulateSemaphore = simulateSemaphore;
+        clientSemaphore = new Semaphore(0);
+        this.simulationSemaphore = simulationSemaphore;
         this.currentTurn = currentTurn;
     }
 
@@ -235,9 +234,9 @@ public class ClientHandler {
                         if (lastReceivedEvent.getType().equals("end")) {
                             int eventTurn = Integer.parseInt(lastReceivedEvent.getArgs()[0]);
                             if (eventTurn == currentTurn.get() + 1) {
-                                simulateSemaphore.release();
+                                simulationSemaphore.release();
                             }
-                            semaphore.acquire();
+                            clientSemaphore.acquire();
                             continue;
                         }
                         if (timeValidator.get()) {
@@ -372,7 +371,7 @@ public class ClientHandler {
             terminate();
     }
 
-    public Semaphore getSemaphore() {
-        return semaphore;
+    public Semaphore getClientSemaphore() {
+        return clientSemaphore;
     }
 }
