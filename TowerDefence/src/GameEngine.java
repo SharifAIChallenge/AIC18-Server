@@ -615,8 +615,10 @@ public class GameEngine implements GameLogic
 //            log.close();
             Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn.get(), p1.getHealth(), p2.getHealth()});
             String logStr = ",\n" + Json.GSON.toJson(message) + "]";
-            lastStatusLogFileSeek = logFile.length() - 1;
-            addMessageToLog(logStr);
+//            lastStatusLogFileSeek = logFile.length() - 1;
+//            addMessageToLog(logStr);
+            logFile.seek(lastStatusLogFileSeek);
+            logFile.write(logStr.getBytes());
             logFile.close();
         } catch (IOException e)
         {

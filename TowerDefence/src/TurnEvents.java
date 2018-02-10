@@ -3,6 +3,7 @@ import GameObject.Unit;
 import GameObject.WarObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import javafx.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -113,128 +114,91 @@ public class TurnEvents
 
     public JsonArray getUpdTowersJson()
     {
-        Object[][] updatedTowersData = new Object[turnTowerUpdates.size() + turnNewTowers.size()][4];
-        for (int i = 0; i < turnTowerUpdates.size(); i++)
-        {
-            Tower tower = turnTowerUpdates.get(i).getValue();
-            updatedTowersData[i] = new Object[]{turnTowerUpdates.get(i).getKey(), tower.getId(), tower.getLevel(), false};
-        }
-        for (int i = 0; i < turnNewTowers.size(); i++)
-        {
-            Tower tower = turnNewTowers.get(i).getValue();
-            updatedTowersData[i] = new Object[]{turnNewTowers.get(i).getKey(), tower.getId(), tower.getLevel(), true};
-        }
-
-        jsonArray = (JsonArray) gson.toJsonTree(updatedTowersData);
-        return jsonArray;
+        return getUpdTowers(turnNewTowers, turnTowerUpdates);
     }
 
     public JsonArray getUpdTowersPartialJson()
     {
-        Object[][] updatedTowersData = new Object[turnPartialTowerUpdates.size() + turnNewPartialTowers.size()][4];
+        return getUpdTowers(turnNewPartialTowers, turnPartialTowerUpdates);
+    }
 
-        for (int i = 0; i < turnPartialTowerUpdates.size(); i++)
+    private JsonArray getUpdTowers(ArrayList<Pair<Integer, Tower>> newTowers, ArrayList<Pair<Integer, Tower>> updateTowers)
+    {
+        Object[][] towerData = new Object[updateTowers.size() + newTowers.size()][4];
+
+        for (int i = 0; i < updateTowers.size(); i++)
         {
-            Tower tower = turnPartialTowerUpdates.get(i).getValue();
-            updatedTowersData[i] = new Object[]{turnPartialTowerUpdates.get(i).getKey(), tower.getId(), tower.getLevel(), false};
+            Tower tower = updateTowers.get(i).getValue();
+            towerData[i] = new Object[]{updateTowers.get(i).getKey(), tower.getId(), tower.getLevel(), false};
         }
-        for (int i = 0; i < turnNewPartialTowers.size(); i++)
+        for (int i = 0; i < newTowers.size(); i++)
         {
-            Tower tower = turnNewPartialTowers.get(i).getValue();
-            updatedTowersData[i] = new Object[]{turnNewPartialTowers.get(i).getKey(), tower.getId(), tower.getLevel(), true};
+            Tower tower = newTowers.get(i).getValue();
+            towerData[i + updateTowers.size()] = new Object[]{newTowers.get(i).getKey(), tower.getId(), tower.getLevel(), true};
         }
 
-        jsonArray = (JsonArray) gson.toJsonTree(updatedTowersData);
+        jsonArray = (JsonArray) gson.toJsonTree(towerData);
         return jsonArray;
     }
 
     public JsonArray getDeadUnitsJson(int id, boolean isForUI)
     {
-        Object[][] deadUnitsData = new Object[turnUnitCasualties.size()][2];
-        for (int i = 0; i < turnUnitCasualties.size(); i++)
-        {
-            WarObject unit = turnUnitCasualties.get(i).getValue();
-            if (isForUI)
-            {
-                deadUnitsData[i] = new Object[]{turnUnitCasualties.get(i).getKey(), unit.getId()};
-            } else
-            {
-                deadUnitsData[i] = new Object[]{turnUnitCasualties.get(i).getKey() ^ id, unit.getId()};
-            }
-        }
-        jsonArray = (JsonArray) gson.toJsonTree(deadUnitsData);
-        return jsonArray;
+        return getWarObjectJson(turnUnitCasualties, id, isForUI);
     }
 
     public JsonArray getSuccessfulUnitsJson(int id, boolean isForUI)
     {
-        Object[][] successfulUnitsData = new Object[turnSuccessfulUnits.size()][2];
-        for (int i = 0; i < turnSuccessfulUnits.size(); i++)
-        {
-            WarObject unit = turnSuccessfulUnits.get(i).getValue();
-            if (isForUI)
-            {
-                successfulUnitsData[i] = new Object[]{turnSuccessfulUnits.get(i).getKey(), unit.getId()};
-            } else
-            {
-                successfulUnitsData[i] = new Object[]{turnSuccessfulUnits.get(i).getKey() ^ id, unit.getId()};
-            }
-        }
-        jsonArray = (JsonArray) gson.toJsonTree(successfulUnitsData);
-        return jsonArray;
+        return getWarObjectJson(turnSuccessfulUnits, id, isForUI);
     }
 
     public JsonArray getTowerCasualtiesJson(int id, boolean isForUI)
     {
-        Object[][] towerCasualtiesData = new Object[turnTowerCasualties.size()][2];
-        for (int i = 0; i < turnTowerCasualties.size(); i++)
+        return getWarObjectJson(turnTowerCasualties, id, isForUI);
+    }
+
+    private JsonArray getWarObjectJson(ArrayList<Pair<Integer, WarObject>> warObjects, int id, boolean isForUI)
+    {
+        Object[][] warObjectsData = new Object[warObjects.size()][2];
+        for (int i = 0; i < warObjects.size(); i++)
         {
-            WarObject unit = turnTowerCasualties.get(i).getValue();
+            WarObject warObject = warObjects.get(i).getValue();
             if (isForUI)
             {
-                towerCasualtiesData[i] = new Object[]{turnTowerCasualties.get(i).getKey(), unit.getId()};
+                warObjectsData[i] = new Object[]{warObjects.get(i).getKey(), warObject.getId()};
             } else
             {
-                towerCasualtiesData[i] = new Object[]{turnTowerCasualties.get(i).getKey() ^ id, unit.getId()};
+                warObjectsData[i] = new Object[]{warObjects.get(i).getKey() ^ id, warObject.getId()};
             }
         }
-        jsonArray = (JsonArray) gson.toJsonTree(towerCasualtiesData);
+        jsonArray = (JsonArray) gson.toJsonTree(warObjectsData);
         return jsonArray;
     }
 
     public JsonArray getBeansJson(int id, boolean isForUI)
     {
-        Object[][] beansData = new Object[turnBeanLocations.size()][2];
-        for (int i = 0; i < turnBeanLocations.size(); i++)
-        {
-            Point location = turnBeanLocations.get(i).getValue();
-            if (isForUI)
-            {
-                beansData[i] = new Object[]{turnBeanLocations.get(i).getKey(), location};
-            } else
-            {
-                beansData[i] = new Object[]{turnBeanLocations.get(i).getKey() ^ id, location};
-            }
-        }
-        jsonArray = (JsonArray) gson.toJsonTree(beansData);
-        return jsonArray;
+        return getLocRelatedJson(turnBeanLocations, id, isForUI);
     }
 
     public JsonArray getNukesJson(int id, boolean isForUI)
     {
-        Object[][] nukesData = new Object[turnNukeLocations.size()][2];
-        for (int i = 0; i < turnNukeLocations.size(); i++)
+        return getLocRelatedJson(turnNukeLocations, id, isForUI);
+    }
+
+    private JsonArray getLocRelatedJson(ArrayList<Pair<Integer, Point>> turnLocations, int id, boolean isForUI)
+    {
+        Object[][] locationsData = new Object[turnLocations.size()][2];
+        for (int i = 0; i < turnLocations.size(); i++)
         {
-            Point location = turnNukeLocations.get(i).getValue();
+            Point location = turnLocations.get(i).getValue();
             if (isForUI)
             {
-                nukesData[i] = new Object[]{turnNukeLocations.get(i).getKey(), location};
+                locationsData[i] = new Object[]{turnLocations.get(i).getKey(), location};
             } else
             {
-                nukesData[i] = new Object[]{turnNukeLocations.get(i).getKey() ^ id, location};
+                locationsData[i] = new Object[]{turnLocations.get(i).getKey() ^ id, location};
             }
         }
-        jsonArray = (JsonArray) gson.toJsonTree(nukesData);
+        jsonArray = (JsonArray) gson.toJsonTree(locationsData);
         return jsonArray;
     }
 
