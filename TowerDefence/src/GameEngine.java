@@ -27,7 +27,6 @@ public class GameEngine implements GameLogic
 
     //    public FileOutputStream log;
     private RandomAccessFile logFile;
-    private long lastStatusLogFileSeek = 0;
     private Scenario firstScenario;
     private Scenario secondScenario;
     private ArrayList<Scenario> scenarios = new ArrayList<>();
@@ -317,13 +316,6 @@ public class GameEngine implements GameLogic
                       ArrayList<ArrayList<Integer>> allTowerUpgradeData,
                       ArrayList<ArrayList<int[]>> allNukeData, ArrayList<ArrayList<int[]>> allBeanData)
     {
-        if (isHeavyTurn)
-        {
-            p1.addIncome();
-            p2.addIncome();
-        }
-
-
         firstScenario.createTowers(allTowerCreation.get(0));
         secondScenario.createTowers(allTowerCreation.get(1));
 
@@ -347,6 +339,17 @@ public class GameEngine implements GameLogic
 
         firstScenario.updateUnitsVision();
         secondScenario.updateUnitsVision();
+
+        if (isHeavyTurn)
+        {
+            p1.addIncome();
+            p2.addIncome();
+        }
+
+        if (currentTurn.get() == 1000)
+        {
+            System.out.println();
+        }
     }
 
     private int[] parseSpecialEventData(String[] data) throws InvalidEventException
@@ -471,7 +474,6 @@ public class GameEngine implements GameLogic
 //            log.write(Json.GSON.toJson(message).getBytes());
 
             String logStr = ",\n" + Json.GSON.toJson(message) + "]";
-            lastStatusLogFileSeek = logFile.length() - 1;
             addMessageToLog(logStr);
         } catch (IOException e)
         {
@@ -610,15 +612,9 @@ public class GameEngine implements GameLogic
     {
         try
         {
-//            getStatusMessage();
-//            log.write("]".getBytes());
-//            log.close();
             Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn.get(), p1.getHealth(), p2.getHealth()});
             String logStr = ",\n" + Json.GSON.toJson(message) + "]";
-//            lastStatusLogFileSeek = logFile.length() - 1;
-//            addMessageToLog(logStr);
-            logFile.seek(lastStatusLogFileSeek);
-            logFile.write(logStr.getBytes());
+            addMessageToLog(logStr);
             logFile.close();
         } catch (IOException e)
         {
