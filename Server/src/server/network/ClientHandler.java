@@ -88,11 +88,6 @@ public class ClientHandler {
     private int numOfExceptions;
 
     /**
-     * Semaphore of this client for handling messages
-     */
-    private Semaphore clientSemaphore;
-
-    /**
      * current Turn in game
      */
     private AtomicInteger currentTurn;
@@ -121,7 +116,6 @@ public class ClientHandler {
         clientLock = new Object();
         messageNotifier = new Object();
 
-        clientSemaphore = new Semaphore(0);
         this.simulationSemaphore = simulationSemaphore;
         this.currentTurn = currentTurn;
     }
@@ -236,7 +230,6 @@ public class ClientHandler {
                             if (eventTurn == currentTurn.get() + 1) {
                                 simulationSemaphore.release();
                             }
-                            clientSemaphore.acquire();
                             continue;
                         }
                         if (timeValidator.get()) {
@@ -369,9 +362,5 @@ public class ClientHandler {
         numOfExceptions++;
         if (numOfExceptions > MAX_NUM_EXCEPTIONS)
             terminate();
-    }
-
-    public Semaphore getClientSemaphore() {
-        return clientSemaphore;
     }
 }

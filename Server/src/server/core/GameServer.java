@@ -47,10 +47,8 @@ public class GameServer {
 
     private Loop mLoop;
 
+    private Semaphore serverSemaphore;
     private Semaphore simulationSemaphore;
-    private AtomicInteger currentTurn;
-
-
 
 
     /**
@@ -84,9 +82,9 @@ public class GameServer {
         mClientsNum = mGameLogic.getClientsNum();
         setClientConfigs();
 
-        simulationSemaphore = new Semaphore(1);
-        this.currentTurn = currentTurn;
-        mClientNetwork = new ClientNetwork(simulationSemaphore, currentTurn);
+        serverSemaphore = new Semaphore(0);
+        simulationSemaphore = new Semaphore(0);
+        mClientNetwork = new ClientNetwork(serverSemaphore, currentTurn);
 
         mUINetwork = new UINetwork();
         mOutputController = new OutputController(mUINetwork);
@@ -274,11 +272,10 @@ public class GameServer {
                 mClientNetwork.sendAllBlocking();
                 long timeout = mGameLogic.getClientResponseTimeout();
                 try {
-                    simulationSemaphore.tryAcquire(2, timeout, TimeUnit.MILLISECONDS);
+                    serverSemaphore.tryAcquire(2, timeout, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                mClientNetwork.releaseClients();
                 mClientNetwork.stopReceivingAll();
 
 

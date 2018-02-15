@@ -405,10 +405,4 @@ public class ClientNetwork extends NetServer {
         sendAllBlocking();
         mClients.forEach(ClientHandler::terminateSending);
     }
-
-    public void releaseClients() {
-        for (ClientHandler client : mClients) {
-            client.getClientSemaphore().release();
-        }
-    }
 }

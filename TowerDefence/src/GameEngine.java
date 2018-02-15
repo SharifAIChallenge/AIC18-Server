@@ -22,10 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameEngine implements GameLogic
 {
     public static final FileParam PARAM_MAP = new FileParam("Map", null, ".*\\.map");
-    public static int PARAM_CLIENT_TIMEOUT = 200;
+    public static int PARAM_CLIENT_TIMEOUT = 275;
     public static int PARAM_TURN_TIMEOUT = 400;
 
-    //    public FileOutputStream log;
     private RandomAccessFile logFile;
     private Scenario firstScenario;
     private Scenario secondScenario;
@@ -148,10 +147,6 @@ public class GameEngine implements GameLogic
 
         try
         {
-//            log = new FileOutputStream("Game.txt");
-//            log.write("[".getBytes());
-//            log.write(Json.GSON.toJson(messages[0]).getBytes());
-
             File prevLogFile = new File("Game.txt");
             if (prevLogFile.exists())
             {
@@ -291,14 +286,10 @@ public class GameEngine implements GameLogic
     private void moveToNextTurn()
     {
         currentTurn.incrementAndGet();
-        if (currentTurn.get() == 0)
-        {
-            return;
-        }
 
         if (currentTurn.get() % 10 == 9)
         {
-            PARAM_CLIENT_TIMEOUT = 1000;
+            PARAM_CLIENT_TIMEOUT = 1075;
             PARAM_TURN_TIMEOUT = 2000;
             isHeavyTurn = true;
             return;
@@ -306,7 +297,7 @@ public class GameEngine implements GameLogic
         if (PARAM_TURN_TIMEOUT == 2000)
         {
             isHeavyTurn = false;
-            PARAM_CLIENT_TIMEOUT = 200;
+            PARAM_CLIENT_TIMEOUT = 275;
             PARAM_TURN_TIMEOUT = 400;
         }
     }
@@ -344,11 +335,6 @@ public class GameEngine implements GameLogic
         {
             p1.addIncome();
             p2.addIncome();
-        }
-
-        if (currentTurn.get() == 1000)
-        {
-            System.out.println();
         }
     }
 
@@ -452,9 +438,6 @@ public class GameEngine implements GameLogic
         Message message = new Message(Message.NAME_TURN, jsonElements);
         try
         {
-//            log.write(",\n".getBytes());
-//            log.write(Json.GSON.toJson(message).getBytes());
-
             String logStr = ",\n" + Json.GSON.toJson(message) + "]";
             addMessageToLog(logStr);
         } catch (IOException e)
@@ -470,9 +453,6 @@ public class GameEngine implements GameLogic
         Message message = new Message(Message.NAME_STATUS, new Object[]{currentTurn.get(), p1.getHealth(), p2.getHealth()});
         try
         {
-//            log.write(",\n".getBytes());
-//            log.write(Json.GSON.toJson(message).getBytes());
-
             String logStr = ",\n" + Json.GSON.toJson(message) + "]";
             addMessageToLog(logStr);
         } catch (IOException e)
