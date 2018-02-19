@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameEngine implements GameLogic
 {
     public static final FileParam PARAM_MAP = new FileParam("Map", null, ".*\\.map");
-    public static int PARAM_CLIENT_TIMEOUT = 275;
+    public static int PARAM_CLIENT_TIMEOUT = 350;
     public static int PARAM_TURN_TIMEOUT = 400;
 
     private RandomAccessFile logFile;
@@ -289,7 +289,7 @@ public class GameEngine implements GameLogic
 
         if (currentTurn.get() % 10 == 9)
         {
-            PARAM_CLIENT_TIMEOUT = 1075;
+            PARAM_CLIENT_TIMEOUT = 1200;
             PARAM_TURN_TIMEOUT = 2000;
             isHeavyTurn = true;
             return;
@@ -297,7 +297,7 @@ public class GameEngine implements GameLogic
         if (PARAM_TURN_TIMEOUT == 2000)
         {
             isHeavyTurn = false;
-            PARAM_CLIENT_TIMEOUT = 275;
+            PARAM_CLIENT_TIMEOUT = 350;
             PARAM_TURN_TIMEOUT = 400;
         }
     }
