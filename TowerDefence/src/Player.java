@@ -92,6 +92,7 @@ public class Player
 //                System.out.println("Tower invalid!");
                 continue;
             }
+            money = towerFactory.getLeftoverMoney();
             for (int i = 0; i < locationAndLv[2] - 1; i++)
             {
                 upgradeTower(tower, true);
@@ -100,7 +101,6 @@ public class Player
             towers.add(tower);
             towersMap.put(tower.getId(), tower);
             map.addTower(tower);
-            money = towerFactory.getLeftoverMoney();
 
             turnEvents.addNewTower(this.id, tower); // TODO check this
             if (opponent.isInVision(tower))
