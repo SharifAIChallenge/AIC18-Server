@@ -28,7 +28,7 @@ public class CannonTower extends Tower
             RoadCell cell = unit.getPath().getCells().get(unit.getCurrentCellIndex());
             for (Unit target : cell.getUnits())
             {
-                target.setHealth((int) (target.getHealth() - getDamage()*Math.pow(getDamageCoeff(), getLevel() - 1)));
+                target.setHealth(target.getHealth() - (int) (getDamage()*Math.pow(getDamageCoeff(), getLevel() - 1)));
                 if (target.getHealth() <= 0)
                 {
                     casualties.add(target);
