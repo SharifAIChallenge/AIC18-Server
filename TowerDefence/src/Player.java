@@ -5,19 +5,20 @@ import GameObject.ArcherTower;
 import GameObject.Tower;
 import GameObject.Unit;
 import Map.*;
-import Map.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Created by msi1 on 1/21/2018.
  */
-public class Player
-{
+public class Player {
     private TowerFactory towerFactory = new TowerFactory();
     private UnitFactory unitFactory = new UnitFactory();
 
@@ -41,8 +42,7 @@ public class Player
 
     private Gson gson = new Gson();
 
-    public Player(int id, TurnEvents turnEvents)
-    {
+    public Player(int id, TurnEvents turnEvents) {
         this.id = id;
         this.turnEvents = turnEvents;
         this.health = Constants.INIT_HEALTH;
@@ -53,22 +53,18 @@ public class Player
         this.income = 20;
     }
 
-    public void sendUnit(ArrayList<Pair<Character, Integer>> allUnitData, Map map)
-    {
+    public void sendUnit(ArrayList<Pair<Character, Integer>> allUnitData, Map map) {
         HashMap<Integer, Path> pathMap = map.getPathsMap();
 
-        for (Pair<Character, Integer> unitData : allUnitData)
-        {
+        for (Pair<Character, Integer> unitData : allUnitData) {
             Path path = pathMap.get(unitData.getValue());
-            if (path == null)
-            {
+            if (path == null) {
                 continue;
             }
 
             Unit unit = unitFactory.createUnit(unitData.getKey(), path, money);
             RoadCell cell = path.getCells().get(0);
-            if (unit == null)
-            {
+            if (unit == null) {
                 continue;
             }
 
@@ -80,21 +76,17 @@ public class Player
         }
     }
 
-    public void createTower(ArrayList<Pair<Character, int[]>> allTowerData, Map map)
-    {
-        for (Pair<Character, int[]> towerData : allTowerData)
-        {
+    public void createTower(ArrayList<Pair<Character, int[]>> allTowerData, Map map) {
+        for (Pair<Character, int[]> towerData : allTowerData) {
 //            System.out.println("in createTower()");
             int[] locationAndLv = towerData.getValue();
             Tower tower = towerFactory.createTower(towerData.getKey(), locationAndLv[0], locationAndLv[1], money);
-            if (tower == null || !map.isConstructableGrass(locationAndLv[0], locationAndLv[1]))
-            {
+            if (tower == null || !map.isConstructableGrass(locationAndLv[0], locationAndLv[1])) {
 //                System.out.println("Tower invalid!");
                 continue;
             }
             money = towerFactory.getLeftoverMoney();
-            for (int i = 0; i < locationAndLv[2] - 1; i++)
-            {
+            for (int i = 0; i < locationAndLv[2] - 1; i++) {
                 upgradeTower(tower, true);
             }
 //            System.out.println("Tower Valid!");
@@ -103,19 +95,15 @@ public class Player
             map.addTower(tower);
 
             turnEvents.addNewTower(this.id, tower); // TODO check this
-            if (opponent.isInVision(tower))
-            {
+            if (opponent.isInVision(tower)) {
                 turnEvents.addNewPartialTower(this.id, tower);
             }
         }
     }
 
-    private boolean isInVision(Tower tower)
-    {
-        for (Unit unit : units)
-        {
-            if (unit.isInVision(tower))
-            {
+    private boolean isInVision(Tower tower) {
+        for (Unit unit : units) {
+            if (unit.isInVision(tower)) {
                 return true;
             }
         }
@@ -123,44 +111,37 @@ public class Player
         return false;
     }
 
-    public void nuke(ArrayList<int[]> nukeLocations, Map map)
-    {
-        for (int[] nukeLocation : nukeLocations)
-        {
+    public void nuke(ArrayList<int[]> nukeLocations, Map map) {
+        for (int[] nukeLocation : nukeLocations) {
             if (nukeNum == 0)
                 return;
             nukeNum--;
             Set<Unit> casualties = map.nuke(nukeLocation[0], nukeLocation[1]);
+            this.getRewards(casualties);
             opponent.killUnits(casualties);
             turnEvents.addNewNukeLocation(this.id, nukeLocation);
         }
     }
 
-    public void killUnits(Collection<Unit> casualties)
-    {
+    public void killUnits(Collection<Unit> casualties) {
         units.removeAll(casualties);
         turnEvents.addUnitCasualties(this.id, casualties);
 
-        for (Unit unit : casualties)
-        {
+        for (Unit unit : casualties) {
             unit.die();
         }
     }
 
-    public void plantBean(ArrayList<int[]> plantLocations, Map map)
-    {
-        for (int[] plantLocation : plantLocations)
-        {
+    public void plantBean(ArrayList<int[]> plantLocations, Map map) {
+        for (int[] plantLocation : plantLocations) {
             if (beanNum == 0)
                 return;
 
             Cell theChosenCell = map.getCell(plantLocation[0], plantLocation[1]);
             if (theChosenCell instanceof GrassCell && (((GrassCell) theChosenCell).getTower() != null ||
-                    ((GrassCell) theChosenCell).isConstructable()))
-            {
+                    ((GrassCell) theChosenCell).isConstructable())) {
                 Tower tower = ((GrassCell) theChosenCell).plantBean();
-                if (tower != null)
-                {
+                if (tower != null) {
                     opponent.destroyTower(tower);
                     deleteFromVision(tower);
                 }
@@ -170,28 +151,23 @@ public class Player
         }
     }
 
-    private void destroyTower(Tower tower)
-    {
+    private void destroyTower(Tower tower) {
         towers.remove(tower);
         towersMap.remove(tower.getId());
         turnEvents.addTowerCasualties(this.id, tower);
 //        deleteFromVision(tower);
     }
 
-    private void deleteFromVision(Tower tower)
-    {
-        for (Unit unit : units)
-        {
+    private void deleteFromVision(Tower tower) {
+        for (Unit unit : units) {
             unit.deleteFromVision(tower);
         }
 
         vision.remove(tower.getId());
     }
 
-    public void upgradeTowers(ArrayList<Integer> towerIds)
-    {
-        for (Integer towerId : towerIds)
-        {
+    public void upgradeTowers(ArrayList<Integer> towerIds) {
+        for (Integer towerId : towerIds) {
             Tower tower = towersMap.get(towerId);
             if (tower == null)
                 continue;
@@ -200,15 +176,12 @@ public class Player
         }
     }
 
-    private void upgradeTower(Tower tower, boolean isNewTower)
-    {
+    private void upgradeTower(Tower tower, boolean isNewTower) {
         int moneyNeeded;
-        if (tower instanceof ArcherTower)
-        {
+        if (tower instanceof ArcherTower) {
             moneyNeeded = (int) (Constants.TOWERS_CONSTANTS[0][1] *
                     Math.pow(Constants.TOWERS_CONSTANTS[0][2], tower.getLevel() - 1));
-        } else
-        {
+        } else {
             moneyNeeded = (int) (Constants.TOWERS_CONSTANTS[1][1] *
                     Math.pow(Constants.TOWERS_CONSTANTS[1][2], tower.getLevel() - 1));
         }
@@ -219,23 +192,19 @@ public class Player
         money -= moneyNeeded;
         tower.setLevel(tower.getLevel() + 1);
 
-        if (!isNewTower)
-        {
+        if (!isNewTower) {
             turnEvents.addNewTowerUpdate(this.id, tower);
-            if (opponent.isInVision(tower))
-            {
+            if (opponent.isInVision(tower)) {
                 turnEvents.addNewPartialTowerUpdate(this.id, tower);
             }
         }
     }
 
-    public JsonElement getJsonUnits()
-    {
+    public JsonElement getJsonUnits() {
         Object[][] unitsData = new Object[units.size()][8];
         JsonArray jsonArray;
 
-        for (int i = 0; i < unitsData.length; i++)
-        {
+        for (int i = 0; i < unitsData.length; i++) {
             Unit unit = units.get(i);
             unitsData[i] = unit.getData();
         }
@@ -244,14 +213,12 @@ public class Player
         return jsonArray;
     }
 
-    public JsonElement getOpponentJsonUnits()
-    {
+    public JsonElement getOpponentJsonUnits() {
         ArrayList<Unit> enemyUnits = opponent.getUnits();
         Object[][] enemyUnitsData = new Object[enemyUnits.size()][5];
         JsonArray jsonArray;
 
-        for (int i = 0; i < enemyUnits.size(); i++)
-        {
+        for (int i = 0; i < enemyUnits.size(); i++) {
             Unit unit = enemyUnits.get(i);
             enemyUnitsData[i] = unit.getPublicData();
         }
@@ -260,13 +227,11 @@ public class Player
         return jsonArray;
     }
 
-    public JsonElement getJsonTowers(ArrayList<Tower> towers)
-    {
+    public JsonElement getJsonTowers(ArrayList<Tower> towers) {
         Object[][] towersData = new Object[towers.size()][5];
         JsonArray jsonArray;
 
-        for (int i = 0; i < towers.size(); i++)
-        {
+        for (int i = 0; i < towers.size(); i++) {
             Tower tower = towers.get(i);
             towersData[i] = tower.getData();
         }
@@ -275,8 +240,7 @@ public class Player
         return jsonArray;
     }
 
-    public JsonElement getOpponentJsonTowers()
-    {
+    public JsonElement getOpponentJsonTowers() {
         ArrayList<Tower> enemyTowersInRange = new ArrayList<>();
         enemyTowersInRange.addAll(getPartialTowers());
 
@@ -284,8 +248,7 @@ public class Player
         return getJsonTowers(enemyTowersInRange);
     }
 
-    public JsonElement getSelfAndOppData()
-    {
+    public JsonElement getSelfAndOppData() {
         JsonArray jsonArray;
         Object[] myData;
         Object[] oppData = new Object[3];
@@ -303,8 +266,7 @@ public class Player
         return jsonArray;
     }
 
-    public Object[] getSelfData()
-    {
+    public Object[] getSelfData() {
         Object[] data = new Object[5];
 
         data[0] = health;
@@ -317,8 +279,7 @@ public class Player
     }
 
 
-    public JsonElement getEventsJsonDataForUI()
-    {
+    public JsonElement getEventsJsonDataForUI() {
         JsonObject result = new JsonObject();
 
         result.add("newunits", turnEvents.getNewUnitsJson());
@@ -336,8 +297,7 @@ public class Player
         return result;
     }
 
-    public JsonElement getEventsJsonDataForClient()
-    {
+    public JsonElement getEventsJsonDataForClient() {
         JsonObject result = new JsonObject();
 
         result.add("deadunits", turnEvents.getDeadUnitsJson(id, false));
@@ -349,39 +309,31 @@ public class Player
         return result;
     }
 
-    public void upgradeVision(ArrayList<Tower> opponentTowers)
-    {
-        for (Unit unit : units)
-        {
+    public void upgradeVision(ArrayList<Tower> opponentTowers) {
+        for (Unit unit : units) {
             unit.updateVision(opponentTowers);
             mergeVision(unit.getTowersInVision(), vision);
         }
     }
 
-    private void mergeVision(HashMap<Integer, Tower> unitVision, HashMap<Integer, Tower> playerVision)
-    {
-        for (Integer towerId : unitVision.keySet())
-        {
+    private void mergeVision(HashMap<Integer, Tower> unitVision, HashMap<Integer, Tower> playerVision) {
+        for (Integer towerId : unitVision.keySet()) {
             Tower unitTower = unitVision.get(towerId);
 
-            if (playerVision.containsKey(towerId))
-            {
+            if (playerVision.containsKey(towerId)) {
                 Tower playerTower = playerVision.get(towerId);
 
-                if (unitTower.getLevel() > playerTower.getLevel())
-                {
+                if (unitTower.getLevel() > playerTower.getLevel()) {
                     playerTower.setLevel(unitTower.getLevel());
                 }
-            } else
-            {
+            } else {
                 Tower cloneTower = TowerFactory.createCopy(unitTower);
                 playerVision.put(towerId, cloneTower);
             }
         }
     }
 
-    public Collection<Tower> getPartialTowers()
-    {
+    public Collection<Tower> getPartialTowers() {
 //        HashMap<Integer, Tower> partialTowers = new HashMap<>();
 //
 //        for (Unit unit : units)
@@ -394,10 +346,8 @@ public class Player
         return vision.values(); // TODO MUST CHECK THIS
     }
 
-    public void getRewards(Collection<Unit> casualties)
-    {
-        for (Unit unit : casualties)
-        {
+    public void getRewards(Collection<Unit> casualties) {
+        for (Unit unit : casualties) {
             money += unit.getKillReward();
             turnover += unit.getKillReward();
         }
@@ -414,109 +364,88 @@ public class Player
 //        }
 //    }
 
-    public void addIncome()
-    {
+    public void addIncome() {
         money += income;
         turnover += income;
     }
 
-    public void clearTemporaryData()
-    {
+    public void clearTemporaryData() {
         turnEvents.clear();
     }
 
-    public ArrayList<Tower> getTowers()
-    {
+    public ArrayList<Tower> getTowers() {
         return towers;
     }
 
-    public void setTowers(ArrayList<Tower> towers)
-    {
+    public void setTowers(ArrayList<Tower> towers) {
         this.towers = towers;
     }
 
-    public ArrayList<Unit> getUnits()
-    {
+    public ArrayList<Unit> getUnits() {
         return units;
     }
 
-    public void setUnits(ArrayList<Unit> units)
-    {
+    public void setUnits(ArrayList<Unit> units) {
         this.units = units;
     }
 
-    public int getMoney()
-    {
+    public int getMoney() {
         return money;
     }
 
-    public void setMoney(int money)
-    {
+    public void setMoney(int money) {
         this.money = money;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public int getHealth()
-    {
+    public int getHealth() {
         return health;
     }
 
-    public void setHealth(int health)
-    {
+    public void setHealth(int health) {
         this.health = health;
     }
 
-    public Player getOpponent()
-    {
+    public Player getOpponent() {
         return opponent;
     }
 
-    public void setOpponent(Player opponent)
-    {
+    public void setOpponent(Player opponent) {
         this.opponent = opponent;
     }
 
-    public int getNukeNum()
-    {
+    public int getNukeNum() {
         return nukeNum;
     }
 
-    public void setNukeNum(int nukeNum)
-    {
+    public void setNukeNum(int nukeNum) {
         this.nukeNum = nukeNum;
     }
 
-    public int getBeanNum()
-    {
+    public int getBeanNum() {
         return beanNum;
     }
 
-    public void setBeanNum(int beanNum)
-    {
+    public void setBeanNum(int beanNum) {
         this.beanNum = beanNum;
     }
 
-    public int getIncome()
-    {
+    public int getIncome() {
         return income;
     }
 
-    public void setIncome(int income)
-    {
+    public void setIncome(int income) {
         this.income = income;
     }
 
-    public int getTurnover()
-    {
+    public int getTurnover() {
         return turnover;
     }
 }
