@@ -37,7 +37,7 @@ public class ArcherTower extends Tower
         ArrayList<Unit> casualties = new ArrayList<>();
         if (tickPerAttack == attackCounter)
         {
-            unit.setHealth((int) (unit.getHealth() - (double) getDamage()*Math.pow(getDamageCoeff(), getLevel() - 1)));
+            unit.setHealth(unit.getHealth() - (int) ((double) getDamage()*Math.pow(getDamageCoeff(), getLevel() - 1)));
             if (unit.getHealth() <= 0)
             {
                 casualties.add(unit);
