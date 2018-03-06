@@ -15,7 +15,7 @@ public class Constants
     public static int NUMBER_OF_NUKES;
     public static int RANGE_OF_NUKES;
     public static double[][] UNITS_CONSTANTS = new double[2][11];
-    public static double[][] TOWERS_CONSTANTS = new double[2][8];
+    public static double[][] TOWERS_CONSTANTS = new double[2][9];
     private static JsonArray CONSTANTS_JSON;
 
     public static void setConsts(JsonArray consts)

@@ -11,20 +11,22 @@ public class TowerFactory {
     private static int nextId = 1;
     private int leftoverMoney;
     private int archerTowerCost;
-    private int archerTowerLevelUpInitCost;
-    private double archerTowerLevelUpCostCoeff;
+    private int archerTowerCostInc = 5;
     private int cannonTowerCost;
-    private int cannonTowerLevelUpInitCost;
-    private double cannonTowerLevelUpCostCoeff;
+    private int cannonTowerCostInc = 5;
 
     public TowerFactory() {
         this.archerTowerCost = (int) Constants.TOWERS_CONSTANTS[0][0];
-        this.archerTowerLevelUpInitCost = (int) Constants.TOWERS_CONSTANTS[0][1];
-        this.archerTowerLevelUpCostCoeff = Constants.TOWERS_CONSTANTS[0][2];
+        if (Constants.TOWERS_CONSTANTS[0].length == 9)
+        {
+            this.archerTowerCostInc = (int) Constants.TOWERS_CONSTANTS[0][8];
+        }
 
         this.cannonTowerCost = (int) Constants.TOWERS_CONSTANTS[1][0];
-        this.cannonTowerLevelUpInitCost = (int) Constants.TOWERS_CONSTANTS[1][1];
-        this.cannonTowerLevelUpCostCoeff = Constants.TOWERS_CONSTANTS[1][2];
+        if (Constants.TOWERS_CONSTANTS[1].length == 9)
+        {
+            this.cannonTowerCostInc = (int) Constants.TOWERS_CONSTANTS[1][8];
+        }
     }
 
     public static Tower createCopy(Tower tower) {
@@ -45,6 +47,7 @@ public class TowerFactory {
 
             if (money - cost >= 0) {
                 leftoverMoney = money - cost;
+                archerTowerCost += archerTowerCostInc;
                 return new ArcherTower(nextId++, x, y, 1);
             }
         } else if (type == 'c') {
@@ -52,27 +55,12 @@ public class TowerFactory {
 
             if (money - cost >= 0) {
                 leftoverMoney = money - cost;
+                cannonTowerCost += cannonTowerCostInc;
                 return new CannonTower(nextId++, x, y, 1);
             }
         }
 
         return null;
-    }
-
-    private int calculateArcherLevelUpCost(int lv) {
-        if (lv == 1) {
-            return 0;
-        }
-
-        return (int) ((double) archerTowerLevelUpInitCost * Math.pow(archerTowerLevelUpCostCoeff, (lv - 2)));
-    }
-
-    private int calculateCannonLevelUpCost(int lv) {
-        if (lv == 1) {
-            return 0;
-        }
-
-        return (int) ((double) cannonTowerLevelUpInitCost * Math.pow(cannonTowerLevelUpCostCoeff, (lv - 2)));
     }
 
     public int getLeftoverMoney() {
