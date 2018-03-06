@@ -518,8 +518,8 @@ public class GameEngine implements GameLogic
                 return true;
             } else if (p1.getHealth() == p2.getHealth() && p1.getHealth() == 0)
             {
-                int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
-                int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
+                int p1TotalTransaction = p1.getTurnover();
+                int p2TotalTransaction = p2.getTurnover();
                 if (p1TotalTransaction > p2TotalTransaction)
                 {
                     p1.setHealth(1);
@@ -565,8 +565,8 @@ public class GameEngine implements GameLogic
                     finishLog();
                 } else if (p1.getHealth() == p2.getHealth())
                 {
-                    int p1TotalTransaction = p1.getMoney() + p1.getTurnover();
-                    int p2TotalTransaction = p2.getMoney() + p2.getTurnover();
+                    int p1TotalTransaction = p1.getTurnover();
+                    int p2TotalTransaction = p2.getTurnover();
                     if (p1TotalTransaction > p2TotalTransaction)
                     {
                         p2.setHealth(0);
