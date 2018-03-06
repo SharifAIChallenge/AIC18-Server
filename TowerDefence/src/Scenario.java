@@ -141,22 +141,20 @@ public class Scenario
     {
         ArrayList<Tower> playerOneTowers = defender.getTowers();
         ArrayList<Tower> playerTwoTowers = attacker.getTowers();
-        Object[][] data = new Object[playerOneTowers.size() + playerTwoTowers.size()][5];
+        Object[][] data = new Object[playerOneTowers.size() + playerTwoTowers.size()][6];
 
         for (int i = 0; i < playerOneTowers.size(); i++)
         {
-            data[i] = new Object[5];
+            data[i] = new Object[6];
             Object[] unitData = playerOneTowers.get(i).getData();
             data[i][0] = defender.getId();
             mergeArray(data[i], unitData, 1);
-//            data[i] = new Object[]{defender.getId(), playerOneTowers.get(i).getData()};
         }
         for (int i = 0; i < playerTwoTowers.size(); i++)
         {
-            data[i + playerOneTowers.size()] = new Object[5];
+            data[i + playerOneTowers.size()] = new Object[6];
             data[i + playerOneTowers.size()][0] = attacker.getId();
             mergeArray(data[i + playerOneTowers.size()], playerTwoTowers.get(i).getData(), 1);
-//            data[i + playerOneTowers.size()] = new Object[]{attacker.getId(), playerTwoTowers.get(i).getData()};
         }
 
         return gson.toJsonTree(data);
