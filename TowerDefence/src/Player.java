@@ -129,8 +129,12 @@ public class Player
         {
             if (nukeNum == 0)
                 return;
-            nukeNum--;
             Set<Unit> casualties = map.nuke(nukeLocation[0], nukeLocation[1]);
+            if (casualties == null)
+            {
+                return;
+            }
+            nukeNum--;
             this.getRewards(casualties);
             opponent.killUnits(casualties);
             turnEvents.addNewNukeLocation(this.id, nukeLocation);

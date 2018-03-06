@@ -121,7 +121,7 @@ public class Map
     {
         if (x >= cells.length || x <= -1 || y >= cells[0].length || y <= -1)
         {
-            return new HashSet<>();
+            return null;
         }
 
         Set<Unit> casualties = new HashSet<>();
