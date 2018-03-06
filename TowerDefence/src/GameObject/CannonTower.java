@@ -36,10 +36,6 @@ public class CannonTower extends Tower
             }
         }
 
-        if (--attackCounter == 0)
-        {
-            attackCounter = tickPerAttack;
-        }
         return casualties;
     }
 

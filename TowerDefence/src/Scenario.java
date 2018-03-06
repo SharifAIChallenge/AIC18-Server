@@ -38,6 +38,7 @@ public class Scenario
             Unit unit = tower.locateTarget(map);
             if (unit == null)
             {
+                tower.tick(false);
                 continue;
             }
             casualties.addAll(tower.fire(unit));
@@ -48,6 +49,7 @@ public class Scenario
             {
                 turnEvents.addCannonAttack(tower, unit);
             }
+            tower.tick(true);
         }
         defender.getRewards(casualties);
         attacker.killUnits(casualties);

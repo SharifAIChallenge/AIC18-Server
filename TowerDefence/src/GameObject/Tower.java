@@ -51,6 +51,19 @@ public abstract class Tower extends WarObject
         return null;
     }
 
+    public void tick(boolean targetIsInRange)
+    {
+        if (!targetIsInRange && attackCounter == tickPerAttack)
+        {
+            return;
+        }
+
+        if (--attackCounter == 0)
+        {
+            attackCounter = tickPerAttack;
+        }
+    }
+
     public abstract ArrayList<Unit> fire(Unit unit);
 
     protected ArrayList<Unit> firstTargetFinder(Map map)

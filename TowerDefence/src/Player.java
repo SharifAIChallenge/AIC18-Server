@@ -297,7 +297,6 @@ public class Player
         oppData[1] = opponent.getBeanNum();
         oppData[2] = opponent.getNukeNum();
 
-
         data = new Object[][]{myData, oppData};
         jsonArray = (JsonArray) gson.toJsonTree(data);
         return jsonArray;
@@ -305,13 +304,15 @@ public class Player
 
     public Object[] getSelfData()
     {
-        Object[] data = new Object[5];
+        Object[] data = new Object[7];
 
         data[0] = health;
         data[1] = money;
         data[2] = income;
         data[3] = beanNum;
         data[4] = nukeNum;
+        data[5] = towerFactory.getArcherTowerCost();
+        data[6] = towerFactory.getCannonTowerCost();
 
         return data;
     }
@@ -382,15 +383,6 @@ public class Player
 
     public Collection<Tower> getPartialTowers()
     {
-//        HashMap<Integer, Tower> partialTowers = new HashMap<>();
-//
-//        for (Unit unit : units)
-//        {
-//            HashMap<Integer, Tower> unitVision = unit.getTowersInVision();
-//            merge(partialTowers, unitVision);
-//        }
-//
-//        return partialTowers.values();
         return vision.values(); // TODO MUST CHECK THIS
     }
 
@@ -402,17 +394,6 @@ public class Player
             turnover += unit.getKillReward();
         }
     }
-
-//    private void merge(HashMap<Integer, Tower> mainMap, HashMap<Integer, Tower> secondMap)
-//    {
-//        for (Integer id : secondMap.keySet())
-//        {
-//            if (!mainMap.containsKey(id))
-//            {
-//                mainMap.put(id, secondMap.get(id));
-//            }
-//        }
-//    }
 
     public void addIncome()
     {

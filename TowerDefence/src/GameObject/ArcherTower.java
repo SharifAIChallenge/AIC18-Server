@@ -15,22 +15,6 @@ public class ArcherTower extends Tower
                 (int) Constants.TOWERS_CONSTANTS[0][5], (int) Constants.TOWERS_CONSTANTS[0][6]);
     }
 
-//    public ArrayList<Unit> locateTarget(Map map)
-//    {
-//        ArrayList<Unit> targets = firstTargetFinder(map);
-//        if (targets.size() > 1)
-//        {
-//            targets = secondTargetFinder(targets);
-//        }
-//
-//        if (targets.size() > 0)
-//        {
-//            return targets.get(0);
-//        }
-//
-//        return null;
-//    }
-
     @Override
     public ArrayList<Unit> fire(Unit unit)
     {
@@ -45,10 +29,6 @@ public class ArcherTower extends Tower
 
         }
 
-        if (--attackCounter == 0)
-        {
-            attackCounter = tickPerAttack;
-        }
         return casualties;
     }
 
