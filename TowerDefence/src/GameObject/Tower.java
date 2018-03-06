@@ -128,7 +128,7 @@ public abstract class Tower extends WarObject
 
     public Object[] getData()
     {
-        Object[] data = new Object[4];
+        Object[] data = new Object[5];
 
         data[0] = id;
         data[1] = (this instanceof ArcherTower) ? 'a' : 'c';
