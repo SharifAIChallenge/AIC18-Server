@@ -486,7 +486,7 @@ public class GameEngine implements GameLogic
         JsonObject resultObject = new JsonObject();
         resultObject.add("myunits", player.getJsonUnits());
         resultObject.add("enemyunits", player.getOpponentJsonUnits());
-        resultObject.add("mytowers", player.getJsonTowers(player.getTowers()));
+        resultObject.add("mytowers", player.getJsonTowers(player.getTowers(), true));
         resultObject.add("enemytowers", player.getOpponentJsonTowers());
         resultObject.add("players", player.getSelfAndOppData());
         resultObject.add("events", player.getEventsJsonDataForClient());

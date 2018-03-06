@@ -31,9 +31,9 @@ public class TowerFactory {
 
     public static Tower createCopy(Tower tower) {
         if (tower instanceof ArcherTower) {
-            return new ArcherTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel());
+            return new ArcherTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel(), tower.getCost());
         }
-        return new CannonTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel());
+        return new CannonTower(tower.getId(), tower.getX(), tower.getY(), tower.getLevel(), tower.getCost());
     }
 
     public static boolean isSameType(Tower firstTower, Tower secondTower) {
@@ -48,7 +48,7 @@ public class TowerFactory {
             if (money - cost >= 0) {
                 leftoverMoney = money - cost;
                 archerTowerCost += archerTowerCostInc;
-                return new ArcherTower(nextId++, x, y, 1);
+                return new ArcherTower(nextId++, x, y, 1, cost);
             }
         } else if (type == 'c') {
             int cost = cannonTowerCost;
@@ -56,7 +56,7 @@ public class TowerFactory {
             if (money - cost >= 0) {
                 leftoverMoney = money - cost;
                 cannonTowerCost += cannonTowerCostInc;
-                return new CannonTower(nextId++, x, y, 1);
+                return new CannonTower(nextId++, x, y, 1, cost);
             }
         }
 

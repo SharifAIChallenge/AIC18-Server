@@ -13,10 +13,10 @@ import java.util.HashMap;
  */
 public class CannonTower extends Tower
 {
-    public CannonTower(int id, int x, int y, int lv)
+    public CannonTower(int id, int x, int y, int lv, int cost)
     {
         super(id, x, y, lv, (int) Constants.TOWERS_CONSTANTS[1][3], Constants.TOWERS_CONSTANTS[1][4],
-                (int) Constants.TOWERS_CONSTANTS[1][5], (int) Constants.TOWERS_CONSTANTS[1][6]);
+                (int) Constants.TOWERS_CONSTANTS[1][5], (int) Constants.TOWERS_CONSTANTS[1][6], cost);
     }
 
     @Override

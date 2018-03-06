@@ -22,7 +22,8 @@ public abstract class Tower extends WarObject
     protected int attackCounter;
     private int level;
 
-    public Tower(int id, int x, int y, int level, int damage, double damageCoeff, int tickPerAttack, int attackRange)
+    public Tower(int id, int x, int y, int level, int damage, double damageCoeff,
+                 int tickPerAttack, int attackRange, int cost)
     {
         super(id);
         this.x = x;
@@ -33,6 +34,7 @@ public abstract class Tower extends WarObject
         this.tickPerAttack = tickPerAttack;
         this.attackCounter = tickPerAttack;
         this.attackRange = attackRange;
+        this.cost = cost;
     }
 
     public Unit locateTarget(Map map)
@@ -125,6 +127,19 @@ public abstract class Tower extends WarObject
     protected abstract ArrayList<Unit> secondTargetFinder(ArrayList<Unit> targets);
 
     public Object[] getData()
+    {
+        Object[] data = new Object[4];
+
+        data[0] = id;
+        data[1] = (this instanceof ArcherTower) ? 'a' : 'c';
+        data[2] = level;
+        data[3] = new Point(x, y);
+        data[4] = cost;
+
+        return data;
+    }
+
+    public Object[] getDataForOpponent()
     {
         Object[] data = new Object[4];
 

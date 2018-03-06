@@ -261,7 +261,7 @@ public class Player
         return jsonArray;
     }
 
-    public JsonElement getJsonTowers(ArrayList<Tower> towers)
+    public JsonElement getJsonTowers(ArrayList<Tower> towers, boolean isMyTower)
     {
         Object[][] towersData = new Object[towers.size()][5];
         JsonArray jsonArray;
@@ -269,7 +269,13 @@ public class Player
         for (int i = 0; i < towers.size(); i++)
         {
             Tower tower = towers.get(i);
-            towersData[i] = tower.getData();
+            if (isMyTower)
+            {
+                towersData[i] = tower.getData();
+            } else
+            {
+                towersData[i] = tower.getDataForOpponent();
+            }
         }
 
         jsonArray = (JsonArray) gson.toJsonTree(towersData);
@@ -282,7 +288,7 @@ public class Player
         enemyTowersInRange.addAll(getPartialTowers());
 
 
-        return getJsonTowers(enemyTowersInRange);
+        return getJsonTowers(enemyTowersInRange, false);
     }
 
     public JsonElement getSelfAndOppData()

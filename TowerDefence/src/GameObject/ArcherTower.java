@@ -9,10 +9,10 @@ import java.util.ArrayList;
  */
 public class ArcherTower extends Tower
 {
-    public ArcherTower(int id, int x, int y, int lv)
+    public ArcherTower(int id, int x, int y, int lv, int cost)
     {
         super(id, x, y, lv, (int) Constants.TOWERS_CONSTANTS[0][3], Constants.TOWERS_CONSTANTS[0][4],
-                (int) Constants.TOWERS_CONSTANTS[0][5], (int) Constants.TOWERS_CONSTANTS[0][6]);
+                (int) Constants.TOWERS_CONSTANTS[0][5], (int) Constants.TOWERS_CONSTANTS[0][6], cost);
     }
 
     @Override
