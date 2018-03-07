@@ -313,6 +313,9 @@ public class GameEngine implements GameLogic
         firstScenario.upgradeTowers(allTowerUpgradeData.get(0));
         secondScenario.upgradeTowers(allTowerUpgradeData.get(1));
 
+        firstScenario.updateUnitsVision();
+        secondScenario.updateUnitsVision();
+
         firstScenario.nuke(allNukeData.get(0));
         secondScenario.nuke(allNukeData.get(1));
 
