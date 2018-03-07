@@ -132,7 +132,7 @@ public class Player
             Set<Unit> casualties = map.nuke(nukeLocation[0], nukeLocation[1]);
             if (casualties == null)
             {
-                return;
+                continue;
             }
             nukeNum--;
             this.getRewards(casualties);
