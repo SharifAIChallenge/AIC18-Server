@@ -86,10 +86,14 @@ public class Player
         {
 //            System.out.println("in createTower()");
             int[] locationAndLv = towerData.getValue();
-            Tower tower = towerFactory.createTower(towerData.getKey(), locationAndLv[0], locationAndLv[1], money);
-            if (tower == null || !map.isConstructableGrass(locationAndLv[0], locationAndLv[1]))
+            if (!map.isConstructableGrass(locationAndLv[0], locationAndLv[1]))
             {
 //                System.out.println("Tower invalid!");
+                continue;
+            }
+            Tower tower = towerFactory.createTower(towerData.getKey(), locationAndLv[0], locationAndLv[1], money);
+            if (tower == null)
+            {
                 continue;
             }
             money = towerFactory.getLeftoverMoney();
